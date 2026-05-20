@@ -1,6 +1,3 @@
-
-
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -17,7 +14,6 @@ export default function UpdateProfilePage() {
   const [image, setImage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Fix: সেশন ডাটা অ্যাসিনক্রোনাসলি লোড হওয়ার পর স্টেটে পুশ করার জন্য useEffect গার্ড
   useEffect(() => {
     if (currentUser) {
       setName(currentUser.name || "");
@@ -32,7 +28,6 @@ export default function UpdateProfilePage() {
     setLoading(true);
 
     try {
-      // Better Auth-এর ক্লায়েন্ট মেথড দিয়ে সরাসরি প্রোফাইল আপডেট
       const { data, error } = await authClient.updateUser({
         name: name,
         image: image,
@@ -49,7 +44,6 @@ export default function UpdateProfilePage() {
     }
   };
 
-  // ✅ Fix: সেশন চেক পেন্ডিং থাকা অবস্থায় ব্ল্যাংক স্ক্রিন বা বাফারিং এড়াতে প্রি-লোডার গার্ড
   if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -61,7 +55,7 @@ export default function UpdateProfilePage() {
   if (!currentUser) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
-        <p className="text-xs font-black uppercase tracking-widest text-red-500">
+        <p className="text-xs font-bold  text-red-500">
           Authentication Required
         </p>
       </div>
@@ -72,7 +66,7 @@ export default function UpdateProfilePage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-12 px-4">
       <div className="max-w-md mx-auto bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-6 sm:p-8 shadow-xl space-y-6">
         <div>
-          <h1 className="text-2xl font-black tracking-tight">Update Identity</h1>
+          <h1 className="text-2xl font-bold">Update Identity</h1>
           <p className="text-xs text-slate-500 mt-1">
             Modify your network credentials and operational metrics.
           </p>
@@ -80,7 +74,7 @@ export default function UpdateProfilePage() {
 
         <form onSubmit={handleUpdate} className="space-y-4">
           <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-400 uppercase ">
               Full Identity Name
             </label>
             <input
@@ -94,7 +88,7 @@ export default function UpdateProfilePage() {
           </div>
 
           <div>
-            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-slate-400 uppercase ">
               Avatar Image URL
             </label>
             <input
@@ -102,7 +96,7 @@ export default function UpdateProfilePage() {
               value={image}
               onChange={(e) => setImage(e.target.value)}
               className="w-full mt-1 p-3 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
-              placeholder="Paste hotlinked image URL"
+              placeholder="Paste image URL"
             />
           </div>
 
