@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import Link from "next/link";
 
 export default function MyInteractionsPage() {
-  // ✅ Fix 3: সেশন লোডিং ট্র্যাকিংয়ের জন্য isPending আনা হয়েছে
   const { data: session, isPending } = authClient.useSession();
   const currentUser = session?.user;
 
@@ -18,15 +17,13 @@ export default function MyInteractionsPage() {
 
     const fetchInteractions = async () => {
       try {
-        // ✅ Fix 1: ব্রোকেন ফরমেট রিমুভ করে ক্লিন ভাবে credentials: "include" সহ কুয়েরি করা হয়েছে
         const res = await fetch(
           `http://localhost:5000/my-interactions?email=${currentUser.email}`,
           {
             credentials: "include",
-          }
+          },
         );
 
-        // ✅ Fix 2: নেটওয়ার্ক বা সার্ভার এরর হ্যান্ডেল করার জন্য রেসপন্স চেক গার্ড যোগ করা হয়েছে
         if (!res.ok) {
           throw new Error("Fetch failed");
         }
@@ -43,7 +40,6 @@ export default function MyInteractionsPage() {
     fetchInteractions();
   }, [currentUser?.email]);
 
-  // ✅ Fix 3: সেশন পেন্ডিং বা লোডিং অবস্থায় প্রি-লোডার গার্ড
   if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -66,9 +62,7 @@ export default function MyInteractionsPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-black tracking-tight">
-            Interaction History
-          </h1>
+          <h1 className="text-3xl font-black ">Interaction History</h1>
           <p className="text-sm text-slate-500 mt-1">
             Audit and track your architectural reviews across the network.
           </p>
@@ -93,7 +87,7 @@ export default function MyInteractionsPage() {
               >
                 <div className="flex justify-between items-start gap-4">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-wider text-cyan-500">
+                    <span className="text-[10px] font-bold text-cyan-500">
                       COMMENTED ON
                     </span>
                     <Link
@@ -104,11 +98,12 @@ export default function MyInteractionsPage() {
                     </Link>
                   </div>
                   <span className="text-[10px] font-mono font-bold text-slate-400 whitespace-nowrap">
-                    {log.createdAt ? new Date(log.createdAt).toLocaleDateString() : "Recent"}
+                    {log.createdAt
+                      ? new Date(log.createdAt).toLocaleDateString()
+                      : "Recent"}
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
-                  {/* নোট: ব্যাকএন্ড স্কিমা অনুযায়ী text বা commentText যেটা ডাটাবেজে সেভ করছ, সেটা রেন্ডার করবে */}
                   {log.text || log.commentText}
                 </p>
               </div>
