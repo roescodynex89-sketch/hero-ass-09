@@ -13,11 +13,10 @@ export default function MyIdeasPage() {
   const [myIdeas, setMyIdeas] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // মডাল এবং অ্যাকশন স্টেট
   const [activeUpdateIdea, setActiveUpdateIdea] = useState(null);
   const [activeDeleteId, setActiveDeleteId] = useState(null);
 
-  // ফর্ম এডিট স্টেট
+  // edit
   const [editForm, setEditForm] = useState({
     title: "",
     shortDescription: "",
@@ -25,7 +24,6 @@ export default function MyIdeasPage() {
     category: "",
   });
 
-  // ডাটা লোড করা
   useEffect(() => {
     if (!currentUser?.email) return;
 
@@ -49,12 +47,10 @@ export default function MyIdeasPage() {
     fetchMyIdeas();
   }, [currentUser?.email]);
 
-  // ডিলিট কনফার্মেশন হ্যান্ডলার
   const handleDelete = async () => {
     if (!activeDeleteId) return;
 
     try {
-      // ✅ Fix 1: Authorization হেডার এবং localStorage পুরোপুরি রিমুভ করা হয়েছে (কুকি ম্যাচ করার জন্য)
       const res = await fetch(`http://localhost:5000/idea/${activeDeleteId}`, {
         method: "DELETE",
         credentials: "include",
@@ -88,7 +84,6 @@ export default function MyIdeasPage() {
     if (!activeUpdateIdea) return;
 
     try {
-      // ✅ Fix 2: PATCH রিকোয়েস্টে Content-Type এবং body ডাটা পাঠানো ফিক্স করা হয়েছে
       const res = await fetch(
         `http://localhost:5000/idea/${activeUpdateIdea._id}`,
         {
@@ -99,7 +94,7 @@ export default function MyIdeasPage() {
           },
           body: JSON.stringify({
             ...editForm,
-            estimatedBudget: Number(editForm.estimatedBudget), // ডাটা টাইপ সেফটি নাম্বার
+            estimatedBudget: Number(editForm.estimatedBudget), 
           }),
         },
       );
@@ -109,10 +104,9 @@ export default function MyIdeasPage() {
 
         const updatedIdea = await res.json();
 
-        // স্টেট রিফ্রেশ
         setMyIdeas((prev) =>
           prev.map((idea) =>
-            idea._id === activeUpdateIdea._id ? { ...idea, ...editForm } : idea
+            idea._id === activeUpdateIdea._id ? { ...idea, ...editForm } : idea,
           ),
         );
         setActiveUpdateIdea(null);
@@ -143,25 +137,23 @@ export default function MyIdeasPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto">
-        {/* Header section */}
+        {/* Header  */}
         <div className="mb-10 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-black tracking-tight">
-              Control Center
-            </h1>
+            <h1 className="text-3xl font-black ">Control Center</h1>
             <p className="text-sm text-slate-500 mt-1">
               Manage and audit your deployed architectural blueprints.
             </p>
           </div>
           <button
             onClick={() => router.push("/add-idea")}
-            className="px-4 py-2.5 bg-cyan-500 text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md hover:opacity-90 transition cursor-pointer"
+            className="px-4 py-2.5 bg-cyan-500 text-white text-xs font-bold   rounded-xl shadow-md hover:opacity-90 transition cursor-pointer"
           >
             + Deploy New Blueprint
           </button>
         </div>
 
-        {/* Loading and Table Render Layout */}
+        {/* Loading  */}
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
@@ -204,8 +196,9 @@ export default function MyIdeasPage() {
                         </span>
                       </td>
                       <td className="p-4 font-mono text-xs text-emerald-500 font-bold">
-                        {/* ✅ Fix 3: বাজেট না থাকলে কন্ডিশনাল রেন্ডারিং */}
-                        {idea.estimatedBudget ? `$${idea.estimatedBudget}` : "Flexible"}
+                        {idea.estimatedBudget
+                          ? `$${idea.estimatedBudget}`
+                          : "Flexible"}
                       </td>
                       <td className="p-4 text-right space-x-2">
                         <button
@@ -229,14 +222,12 @@ export default function MyIdeasPage() {
           </div>
         )}
 
-        {/* Custom Update Blueprint Modal */}
+        {/*  Update  */}
         {activeUpdateIdea && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-xl space-y-4">
               <div>
-                <h3 className="text-lg font-black tracking-tight">
-                  Modify Architecture
-                </h3>
+                <h3 className="text-lg font-black ">Modify Architecture</h3>
                 <p className="text-xs text-slate-400">
                   Refine the parameters of your active startup concept.
                 </p>
@@ -302,7 +293,7 @@ export default function MyIdeasPage() {
                       onChange={(e) =>
                         setEditForm({ ...editForm, category: e.target.value })
                       }
-                      className="w-full mt-1 p-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent"
+                      className="w-full mt-1 p-2.5 text-sm rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-900"
                     >
                       <option value="Tech">Tech</option>
                       <option value="AI">AI</option>
@@ -333,7 +324,7 @@ export default function MyIdeasPage() {
           </div>
         )}
 
-        {/* Custom Delete Confirmation Modal */}
+        {/*  Delete  */}
         {activeDeleteId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-xs rounded-2xl p-6 shadow-xl space-y-4 text-center">
@@ -341,7 +332,7 @@ export default function MyIdeasPage() {
                 ⚠️
               </div>
               <div>
-                <h3 className="text-base font-black tracking-tight">
+                <h3 className="text-base font-bold">
                   Confirm Hard Deletion
                 </h3>
                 <p className="text-xs text-slate-400 mt-1">
