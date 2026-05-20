@@ -10,6 +10,9 @@ import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { TbRocket } from "react-icons/tb";
 
+
+// react-hook
+
 const LoginPageComponent = () => {
   const {
     register,
@@ -22,6 +25,8 @@ const LoginPageComponent = () => {
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get("redirect") || "/";
 
+
+  // main logic
 const onSubmit = async (data) => {
   setLoading(true);
 
@@ -87,7 +92,11 @@ const handleGoogleLogin = async () => {
 
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-50 dark:bg-linear-to-br dark:from-[#020617] dark:via-[#0F172A] dark:to-[#111827] text-slate-900 dark:text-slate-100 relative overflow-hidden transition-colors duration-300 font-sans">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-50 dark:bg-linear-to-br dark:from-[#020617] dark:via-[#0F172A] dark:to-dark-secondary text-slate-900 dark:text-slate-100 relative overflow-hidden transition-colors duration-300 font-sans">
+
+{/* dark:to-dark-secondary */}
+
+
       {/* background*/}
       <div className="hidden dark:block absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
       <div className="hidden dark:block absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-violet-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
