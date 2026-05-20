@@ -18,15 +18,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  //   const [user, setUser] = useState({
-  //     name: "John Doe",
-  //     email: "john@example.com",
-  //     photoURL:
-  //       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80",
-  //   });
-
-  const { data: seasons, isPending } = authClient.useSession();
-  const user = seasons?.user;
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
 
   const navLinks = [
     { name: "Home", href: "/" },
@@ -42,16 +35,31 @@ export default function Navbar() {
   const isActive = (path) => pathname === path;
 
   const handleLogout = async () => {
-    await authClient.signOut({
-      fetchOptions: {
-        onSuccess: () => {
-          toast.success("Logged out successfully");
-          setIsProfileOpen(false);
-          setIsOpen(false);
-          router.push("/login");
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+
+      if (!res.ok) {
+        throw new Error("Logout failed");
+      }
+
+      await authClient.signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success("Logged out successfully");
+
+            setIsProfileOpen(false);
+            setIsOpen(false);
+
+            router.replace("/login");
+          },
         },
-      },
-    });
+      });
+    } catch (error) {
+      toast.error("Logout failed");
+    }
   };
 
   return (
@@ -108,7 +116,7 @@ export default function Navbar() {
                   className="flex items-center space-x-2 p-1.5 rounded-xl border border-white/5 bg-slate-100 dark:bg-slate-900 cursor-pointer hover:border-white/20 transition-all"
                 >
                   <Image
-                    src={user.image}
+                    src={user.image || "/default-user.png"}
                     alt={user.name}
                     width={28}
                     height={28}
@@ -131,14 +139,25 @@ export default function Navbar() {
                       </p>
                     </div>
 
-                    <Link
-                      href="/update-profile"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center space-x-2 p-2 rounded-xl text-sm text-light-text-sec dark:text-dark-text-sec hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-                    >
-                      <FiUser className="w-4 h-4 text-accent-cyan" />
-                      <span>Update Profile</span>
-                    </Link>
+                    <div className="space-y-1">
+                      <Link
+                        href="/my-profile"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center space-x-2 p-2 rounded-xl text-sm text-light-text-sec dark:text-dark-text-sec hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <FiUser className="w-4 h-4 text-accent-cyan" />
+                        <span>My Profile</span>
+                      </Link>
+
+                      <Link
+                        href="/update-profile"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center space-x-2 p-2 rounded-xl text-sm text-light-text-sec dark:text-dark-text-sec hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <FiUser className="w-4 h-4 text-accent-cyan" />
+                        <span>Update Profile</span>
+                      </Link>
+                    </div>
 
                     <button
                       onClick={handleLogout}
@@ -151,12 +170,21 @@ export default function Navbar() {
                 )}
               </div>
             ) : (
-              <Link
-                href="/login"
-                className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-linear-to-r from-accent-cyan to-accent-purple hover:brightness-110 active:scale-95 shadow-md shadow-accent-cyan/10 transition-all duration-300"
-              >
-                Sign In
-              </Link>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/login"
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-linear-to-r from-accent-cyan to-accent-purple hover:brightness-110 active:scale-95 shadow-md shadow-accent-cyan/10 transition-all duration-300"
+                >
+                  Sign In
+                </Link>
+
+                <Link
+                  href="/register"
+                  className="px-5 py-2.5 rounded-xl text-sm font-semibold border border-slate-300 dark:border-slate-700 text-light-text dark:text-dark-text hover:border-accent-cyan transition-all duration-300"
+                >
+                  Register
+                </Link>
+              </div>
             )}
           </div>
 
@@ -212,21 +240,28 @@ export default function Navbar() {
 
               <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-2">
                 <Link
-                  href="/update-profile"
+                  href="/my-profile"
                   onClick={() => setIsOpen(false)}
                   className="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-light-text-sec dark:text-dark-text-sec"
                 >
                   <Image
-                    src={user.image}
+                    src={user.image || "/default-user.png"}
                     alt=""
                     width={24}
                     height={24}
                     className="rounded-md object-cover"
                     unoptimized
                   />
-                  <span className="text-sm font-medium">
-                    Update Profile ({user.name})
-                  </span>
+                  <span className="text-sm font-medium">My Profile</span>
+                </Link>
+
+                <Link
+                  href="/update-profile"
+                  onClick={() => setIsOpen(false)}
+                  className="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-light-text-sec dark:text-dark-text-sec"
+                >
+                  <FiUser className="w-5 h-5 text-accent-cyan" />
+                  <span className="text-sm font-medium">Update Profile</span>
                 </Link>
 
                 <button
@@ -245,9 +280,17 @@ export default function Navbar() {
               <Link
                 href="/login"
                 onClick={() => setIsOpen(false)}
-                className="block w-full text-center px-4 py-2.5 rounded-xl font-semibold text-white bg-linear-to-r from-accent-cyan to-accent-purple"
+                className="block w-full text-center px-4 py-2.5 rounded-xl font-semibold bg-linear-to-r from-accent-cyan to-accent-purple text-white"
               >
                 Sign In
+              </Link>
+
+              <Link
+                href="/register"
+                onClick={() => setIsOpen(false)}
+                className="block w-full text-center px-4 py-2.5 rounded-xl font-semibold border border-slate-300 dark:border-slate-700 text-light-text dark:text-dark-text mt-3"
+              >
+                Register
               </Link>
             </div>
           )}

@@ -21,6 +21,7 @@ export default function RegisterPage() {
 
   const onSubmit = async (data) => {
     setLoading(true);
+
     const { name, email, password, photo } = data;
 
     const { error } = await authClient.signUp.email({
@@ -32,7 +33,9 @@ export default function RegisterPage() {
 
     if (error) {
       setLoading(false);
+
       toast.error(error.message || "Registration failed. Try again.");
+
       return;
     }
 
@@ -41,16 +44,41 @@ export default function RegisterPage() {
       password,
     });
 
-    setLoading(false);
-
     if (loginRes.error) {
+      setLoading(false);
+
       toast.warning(
         "Account created, but automatic sign-in failed. Please login manually.",
       );
-      router.push("/login");
-    } else {
+
+      router.replace("/login");
+
+      return;
+    }
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        throw new Error("JWT generation failed");
+      }
+
       toast.success("Account provisions deployed successfully! Welcome. 🚀");
-      router.push("/");
+
+      router.replace("/");
+    } catch (jwtErr) {
+      toast.error("JWT Synchronization failed.");
+
+      router.replace("/");
+    } finally {
+      setLoading(false);
     }
   };
 

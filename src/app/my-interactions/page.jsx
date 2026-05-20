@@ -1,11 +1,121 @@
+"use client";
 
+import { useState, useEffect } from "react";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
+import Link from "next/link";
 
-const page = () => {
+export default function MyInteractionsPage() {
+  // ✅ Fix 3: সেশন লোডিং ট্র্যাকিংয়ের জন্য isPending আনা হয়েছে
+  const { data: session, isPending } = authClient.useSession();
+  const currentUser = session?.user;
+
+  const [interactions, setInteractions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentUser?.email) return;
+
+    const fetchInteractions = async () => {
+      try {
+        // ✅ Fix 1: ব্রোকেন ফরমেট রিমুভ করে ক্লিন ভাবে credentials: "include" সহ কুয়েরি করা হয়েছে
+        const res = await fetch(
+          `http://localhost:5000/my-interactions?email=${currentUser.email}`,
+          {
+            credentials: "include",
+          }
+        );
+
+        // ✅ Fix 2: নেটওয়ার্ক বা সার্ভার এরর হ্যান্ডেল করার জন্য রেসপন্স চেক গার্ড যোগ করা হয়েছে
+        if (!res.ok) {
+          throw new Error("Fetch failed");
+        }
+
+        const data = await res.json();
+        setInteractions(Array.isArray(data) ? data : []);
+      } catch (err) {
+        toast.error("Failed to fetch your community footprint");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchInteractions();
+  }, [currentUser?.email]);
+
+  // ✅ Fix 3: সেশন পেন্ডিং বা লোডিং অবস্থায় প্রি-লোডার গার্ড
+  if (isPending) {
     return (
-        <div>
-          inter  
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
     );
-};
+  }
 
-export default page;
+  if (!currentUser) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+        <p className="text-xs font-black uppercase tracking-widest text-red-500">
+          Authentication Required
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-12 px-4">
+      <div className="max-w-3xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-black tracking-tight">
+            Interaction History
+          </h1>
+          <p className="text-sm text-slate-500 mt-1">
+            Audit and track your architectural reviews across the network.
+          </p>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-20">
+            <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        ) : interactions.length === 0 ? (
+          <div className="text-center py-16 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
+            <p className="text-slate-400 text-sm font-medium">
+              No system reviews logged yet.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {interactions.map((log) => (
+              <div
+                key={log._id}
+                className="p-5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xs space-y-2"
+              >
+                <div className="flex justify-between items-start gap-4">
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-cyan-500">
+                      COMMENTED ON
+                    </span>
+                    <Link
+                      href={`/ideas/${log.ideaId}`}
+                      className="block font-bold text-slate-900 dark:text-white hover:underline line-clamp-1 mt-0.5"
+                    >
+                      {log.ideaTitle}
+                    </Link>
+                  </div>
+                  <span className="text-[10px] font-mono font-bold text-slate-400 whitespace-nowrap">
+                    {log.createdAt ? new Date(log.createdAt).toLocaleDateString() : "Recent"}
+                  </span>
+                </div>
+                <p className="text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
+                  {/* নোট: ব্যাকএন্ড স্কিমা অনুযায়ী text বা commentText যেটা ডাটাবেজে সেভ করছ, সেটা রেন্ডার করবে */}
+                  {log.text || log.commentText}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

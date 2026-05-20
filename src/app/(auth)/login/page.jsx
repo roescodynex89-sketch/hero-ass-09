@@ -16,44 +16,75 @@ const LoginPageComponent = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
+
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get("redirect") || "/";
 
-  const onSubmit = async (data) => {
-    setLoading(true);
-    const { email, password } = data;
+const onSubmit = async (data) => {
+  setLoading(true);
 
-    const { error } = await authClient.signIn.email({
-      email,
-      password,
-      rememberMe: true,
-    });
+  const { email, password } = data;
 
+  const { error } = await authClient.signIn.email({
+    email,
+    password,
+    rememberMe: true,
+  });
+
+  if (error) {
     setLoading(false);
 
-    if (error) {
-      toast.error(
-        error.message ||
-          "Authentication failed. Please check your credentials.",
-      );
-    } else {
-      toast.success("Welcome back to IdeaVault! 👋");
-      router.push(redirectPath);
-    }
-  };
+    toast.error(
+      error.message ||
+        "Authentication failed. Please check your credentials."
+    );
 
-  const handleGoogleLogin = async () => {
-    try {
-      await authClient.signIn.social({
-        provider: "google",
-        callbackURL: redirectPath,
-      });
-    } catch (err) {
-      toast.error("Google authentication failed.");
+    return;
+  }
+
+  try {
+    const res = await fetch(
+      `${process.env.NEXT_PUBLIC_API_URL}/jwt`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ email }),
+      }
+    );
+
+    if (!res.ok) {
+      throw new Error("JWT generation failed");
     }
-  };
+
+    toast.success("Welcome back to IdeaVault! 👋");
+
+    router.replace(redirectPath);
+  } catch (jwtErr) {
+    toast.error("JWT Synchronization failed.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+const handleGoogleLogin = async () => {
+  try {
+    await authClient.signIn.social({
+      provider: "google",
+      callbackURL: redirectPath,
+    });
+  } catch (err) {
+    toast.error("Google authentication failed.");
+  }
+};
+
+
+
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-50 dark:bg-linear-to-br dark:from-[#020617] dark:via-[#0F172A] dark:to-[#111827] text-slate-900 dark:text-slate-100 relative overflow-hidden transition-colors duration-300 font-sans">
