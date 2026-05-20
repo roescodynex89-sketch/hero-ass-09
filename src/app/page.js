@@ -5,13 +5,13 @@ import TrendingIdeas from "@/components/home/TrendingIdeas.jsx";
 const page = () => {
   return (
     <>
-  <Banner/>
-  <Extra1/>
- <TrendingIdeas/>
-  <Extra2/>
- 
+      <Banner />
+      <Extra1 />
+      <TrendingIdeas />
+      <Extra2 />
     </>
   );
 };
 
 export default page;
+// home page add 4 section hbe 1-4
