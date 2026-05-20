@@ -2,7 +2,14 @@
 
 import React from "react";
 import Link from "next/link";
-import { FiCpu, FiHeart, FiBookOpen, FiDollarSign, FiShoppingBag, FiCloud } from "react-icons/fi";
+import {
+  FiCpu,
+  FiHeart,
+  FiBookOpen,
+  FiDollarSign,
+  FiShoppingBag,
+  FiCloud,
+} from "react-icons/fi";
 
 const categories = [
   {
@@ -53,14 +60,14 @@ export default function Extra1() {
   return (
     <section className="w-full py-20 bg-white dark:bg-dark-bg transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6">
-        
         {/* Heading Section */}
         <div className="text-center max-w-3xl mx-auto mb-16">
           <h2 className="font-heading text-3xl sm:text-4xl font-bold tracking-tight text-light-text dark:text-dark-text">
             Explore Startup Categories
           </h2>
           <p className="mt-4 text-base sm:text-lg text-light-text-muted dark:text-dark-text-muted">
-            Discover innovative startup ideas across multiple fast-growing industries and modern technologies.
+            Discover innovative startup ideas across multiple fast-growing
+            industries and modern technologies.
           </p>
         </div>
 
@@ -76,7 +83,9 @@ export default function Extra1() {
               >
                 <div>
                   {/* Icon Wrapper */}
-                  <div className={`w-12 h-12 rounded-xl bg-linear-to-br ${category.color} flex items-center justify-center text-xl font-bold`}>
+                  <div
+                    className={`w-12 h-12 rounded-xl bg-linear-to-br ${category.color} flex items-center justify-center text-xl font-bold`}
+                  >
                     <IconComponent className="w-6 h-6" />
                   </div>
 
@@ -100,7 +109,6 @@ export default function Extra1() {
             );
           })}
         </div>
-
       </div>
     </section>
   );

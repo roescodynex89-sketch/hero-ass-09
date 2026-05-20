@@ -24,13 +24,10 @@ const nextConfig = {
         protocol: "https",
         hostname: "www.freepik.com",
       },
-{
-  protocol:"https",
-  hostname:"i.pravatar.cc"
-},
-
-
-
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
+      },
     ],
   },
 };
