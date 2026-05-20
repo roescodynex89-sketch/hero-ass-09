@@ -18,7 +18,7 @@ export default function RegisterPage() {
   } = useForm();
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-
+  // cpy-
   const onSubmit = async (data) => {
     setLoading(true);
 
@@ -94,7 +94,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-50 dark:bg-linear-to-br dark:from-[#020617] dark:via-[#0F172A] dark:to-[#111827] text-slate-900 dark:text-slate-100 relative overflow-hidden transition-colors duration-300 font-sans">
+    <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-50 dark:bg-linear-to-br dark:from-[#020617] dark:via-[#0F172A] dark:to-dark-secondary text-slate-900 dark:text-slate-100 relative overflow-hidden transition-colors duration-300 font-sans">
       <div className="hidden dark:block absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-violet-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
       <div className="hidden dark:block absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none z-0" />
 

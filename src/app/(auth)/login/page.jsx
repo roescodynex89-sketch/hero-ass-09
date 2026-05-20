@@ -10,7 +10,6 @@ import { FiMail, FiLock, FiArrowRight } from "react-icons/fi";
 import { FcGoogle } from "react-icons/fc";
 import { TbRocket } from "react-icons/tb";
 
-
 // react-hook
 
 const LoginPageComponent = () => {
@@ -25,77 +24,67 @@ const LoginPageComponent = () => {
   const searchParams = useSearchParams();
   const redirectPath = searchParams.get("redirect") || "/";
 
-
   // main logic
-const onSubmit = async (data) => {
-  setLoading(true);
+  const onSubmit = async (data) => {
+    setLoading(true);
 
-  const { email, password } = data;
+    const { email, password } = data;
 
-  const { error } = await authClient.signIn.email({
-    email,
-    password,
-    rememberMe: true,
-  });
+    const { error } = await authClient.signIn.email({
+      email,
+      password,
+      rememberMe: true,
+    });
 
-  if (error) {
-    setLoading(false);
+    if (error) {
+      setLoading(false);
 
-    toast.error(
-      error.message ||
-        "Authentication failed. Please check your credentials."
-    );
+      toast.error(
+        error.message ||
+          "Authentication failed. Please check your credentials.",
+      );
 
-    return;
-  }
+      return;
+    }
 
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/jwt`,
-      {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
         },
         credentials: "include",
         body: JSON.stringify({ email }),
+      });
+
+      if (!res.ok) {
+        throw new Error("JWT generation failed");
       }
-    );
 
-    if (!res.ok) {
-      throw new Error("JWT generation failed");
+      toast.success("Welcome back to IdeaVault! 👋");
+
+      router.replace(redirectPath);
+    } catch (jwtErr) {
+      toast.error("JWT Synchronization failed.");
+    } finally {
+      setLoading(false);
     }
+  };
 
-    toast.success("Welcome back to IdeaVault! 👋");
-
-    router.replace(redirectPath);
-  } catch (jwtErr) {
-    toast.error("JWT Synchronization failed.");
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-const handleGoogleLogin = async () => {
-  try {
-    await authClient.signIn.social({
-      provider: "google",
-      callbackURL: redirectPath,
-    });
-  } catch (err) {
-    toast.error("Google authentication failed.");
-  }
-};
-
-
-
+  const handleGoogleLogin = async () => {
+    try {
+      await authClient.signIn.social({
+        provider: "google",
+        callbackURL: redirectPath,
+      });
+    } catch (err) {
+      toast.error("Google authentication failed.");
+    }
+  };
 
   return (
     <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 bg-slate-50 dark:bg-linear-to-br dark:from-[#020617] dark:via-[#0F172A] dark:to-dark-secondary text-slate-900 dark:text-slate-100 relative overflow-hidden transition-colors duration-300 font-sans">
-
-{/* dark:to-dark-secondary */}
-
+      {/* dark:to-dark-secondary */}
 
       {/* background*/}
       <div className="hidden dark:block absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-cyan-500/10 blur-[130px] rounded-full pointer-events-none z-0" />

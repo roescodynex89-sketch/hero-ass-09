@@ -20,7 +20,7 @@ export default function Footer() {
           <div className="space-y-4">
             <Link href="/" className="flex items-center space-x-2 group">
               <TbRocket className="text-2xl text-accent-cyan transition-transform group-hover:rotate-45 duration-300" />
-              <span className="font-heading text-xl font-bold tracking-wider bg-linear-to-r from-accent-cyan to-accent-purple bg-clip-text text-transparent">
+              <span className="font-heading text-xl font-bold  bg-linear-to-r from-accent-cyan to-accent-purple bg-clip-text text-transparent">
                 IdeaVault
               </span>
             </Link>
@@ -172,3 +172,8 @@ export default function Footer() {
     </footer>
   );
 }
+
+
+
+
+// nav-ban-extra-footer hbe

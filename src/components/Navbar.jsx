@@ -33,7 +33,7 @@ export default function Navbar() {
   ];
 
   const isActive = (path) => pathname === path;
-
+// logic j
   const handleLogout = async () => {
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logout`, {
