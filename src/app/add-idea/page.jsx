@@ -18,9 +18,9 @@ import {
 } from "react-icons/fi";
 
 export default function AddIdeaPage() {
-  const { 
-    register, 
-    handleSubmit, 
+  const {
+    register,
+    handleSubmit,
     reset,
     formState: { errors },
   } = useForm();
@@ -37,9 +37,7 @@ export default function AddIdeaPage() {
 
     setLoading(true);
 
-    // =========================================================================
-    // 🔒 Problem 1 & 2 Fix: Separate JWT Sync Block (Cookie-based Fallback)
-    // =========================================================================
+    // server
     try {
       const jwtRes = await fetch("http://localhost:5000/jwt", {
         method: "POST",
@@ -47,14 +45,16 @@ export default function AddIdeaPage() {
           "content-type": "application/json",
         },
         credentials: "include",
-        body: JSON.stringify({ email: session.user.email, name: session.user.name }),
+        body: JSON.stringify({
+          email: session.user.email,
+          name: session.user.name,
+        }),
       });
 
       const jwtData = await jwtRes.json();
       console.log("JWT Sync Response:", jwtData); // Debugging log
     } catch (jwtErr) {
       console.error("JWT sync issue:", jwtErr);
-      // Non-blocking error, user can still attempt submission if server-side cookies exist
     }
 
     const ideaPayload = {
@@ -67,14 +67,11 @@ export default function AddIdeaPage() {
       createdAt: new Date().toISOString(),
     };
 
-    // =========================================================================
-    // 💡 SUBMIT IDEA WORKFLOW
-    // =========================================================================
+    // sub
     try {
-      
       const res = await fetch("http://localhost:5000/ideas", {
         method: "POST",
-        headers: { 
+        headers: {
           "content-type": "application/json",
         },
         credentials: "include",
@@ -85,7 +82,7 @@ export default function AddIdeaPage() {
 
       toast.success("Idea submitted successfully 🚀");
       reset();
-      router.push("/my-idea"); 
+      router.push("/my-idea");
     } catch (err) {
       toast.error("Failed to submit idea");
     } finally {
@@ -100,7 +97,11 @@ export default function AddIdeaPage() {
     { name: "imageURL", label: "Image URL", icon: FiImage },
     { name: "estimatedBudget", label: "Estimated Budget", icon: FiDollarSign },
     { name: "targetAudience", label: "Target Audience", icon: FiUsers },
-    { name: "problemStatement", label: "Problem Statement", icon: FiAlertCircle },
+    {
+      name: "problemStatement",
+      label: "Problem Statement",
+      icon: FiAlertCircle,
+    },
     { name: "proposedSolution", label: "Proposed Solution", icon: FiCpu },
   ];
 
@@ -114,8 +115,7 @@ export default function AddIdeaPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-10">
       <div className="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10">
-
-        {/* Header */}
+        {/* header */}
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
             Add New Startup Idea
@@ -126,8 +126,7 @@ export default function AddIdeaPage() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-
-          {/* Title */}
+          {/* title */}
           <div>
             <label className="text-sm font-medium flex items-center gap-2">
               <FiType /> Idea Title
@@ -138,16 +137,19 @@ export default function AddIdeaPage() {
               placeholder="Enter idea title"
             />
             {errors.title && (
-              <p className="text-red-500 text-xs mt-1">{errors.title.message}</p>
+              <p className="text-red-500 text-xs mt-1">
+                {errors.title.message}
+              </p>
             )}
           </div>
 
-          {/* Category Dropdown */}
+          {/* Category dropdown */}
           <div>
             <label className="text-sm font-medium">Category</label>
             <select
               {...register("category", { required: "Category is required" })}
-              className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
+              className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 
+               outline-none bg-slate-900"
             >
               <option value="">Select category</option>
               <option value="Tech">Tech</option>
@@ -157,7 +159,9 @@ export default function AddIdeaPage() {
               <option value="FinTech">FinTech</option>
             </select>
             {errors.category && (
-              <p className="text-red-500 text-xs mt-1">{errors.category.message}</p>
+              <p className="text-red-500 text-xs mt-1">
+                {errors.category.message}
+              </p>
             )}
           </div>
 
@@ -173,7 +177,9 @@ export default function AddIdeaPage() {
 
                 {textareaFields.includes(f.name) ? (
                   <textarea
-                    {...register(f.name, { required: `${f.label} is required` })}
+                    {...register(f.name, {
+                      required: `${f.label} is required`,
+                    })}
                     rows={3}
                     className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
                     placeholder={f.label}
@@ -181,22 +187,24 @@ export default function AddIdeaPage() {
                 ) : (
                   <input
                     type={f.name === "estimatedBudget" ? "number" : "text"}
-                    {...register(f.name, { 
+                    {...register(f.name, {
                       required: `${f.label} is required`,
                       ...(f.name === "imageURL" && {
                         pattern: {
                           value: /^https?:\/\/.+/,
                           message: "Enter valid image URL",
-                        }
-                      })
+                        },
+                      }),
                     })}
                     className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
                     placeholder={f.label}
                   />
                 )}
-                
+
                 {errors[f.name] && (
-                  <p className="text-red-500 text-xs mt-1">{errors[f.name].message}</p>
+                  <p className="text-red-500 text-xs mt-1">
+                    {errors[f.name].message}
+                  </p>
                 )}
               </div>
             );
@@ -206,7 +214,7 @@ export default function AddIdeaPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:scale-[1.01] active:scale-95 transition cursor-pointer"
+            className="w-full py-3 rounded-xl bg-linear-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:scale-[1.01] active:scale-95 transition cursor-pointer"
           >
             {loading ? "Submitting..." : "Submit Idea"}
           </button>
