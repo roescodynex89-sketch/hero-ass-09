@@ -18,7 +18,7 @@ export default function MyInteractionsPage() {
     const fetchInteractions = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/my-interactions?email=${currentUser.email}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/my-interactions?email=${currentUser.email}`,
           {
             credentials: "include",
           },

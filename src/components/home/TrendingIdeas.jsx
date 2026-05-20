@@ -12,7 +12,7 @@ export default function TrendingIdeas() {
     const fetchTrendingIdeas = async () => {
       try {
         // expresss-
-        const res = await fetch("http://localhost:5000/ideas?limit=6");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas?limit=6`);
         const data = await res.json();
         setIdeas(Array.isArray(data) ? data : []);
       } catch (err) {

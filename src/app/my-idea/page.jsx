@@ -30,7 +30,7 @@ export default function MyIdeasPage() {
     const fetchMyIdeas = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5000/my-idea?email=${currentUser.email}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/my-idea?email=${currentUser.email}`,
           {
             credentials: "include",
           },
@@ -51,7 +51,7 @@ export default function MyIdeasPage() {
     if (!activeDeleteId) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/idea/${activeDeleteId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/idea/${activeDeleteId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -85,7 +85,7 @@ export default function MyIdeasPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:5000/idea/${activeUpdateIdea._id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/idea/${activeUpdateIdea._id}`,
         {
           method: "PATCH",
           credentials: "include",

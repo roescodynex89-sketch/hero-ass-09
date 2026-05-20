@@ -35,7 +35,7 @@ export default function IdeaDetailsPage() {
 
     const fetchIdeaDetails = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/ideas/${id}`, {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/${id}`, {
           credentials: "include",
         });
         if (!res.ok) throw new Error("Idea not found");
@@ -49,7 +49,7 @@ export default function IdeaDetailsPage() {
 
     const fetchComments = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/comments/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`);
         const data = await res.json();
         setComments(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -80,7 +80,7 @@ export default function IdeaDetailsPage() {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/comments", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments`, {
         method: "POST",
         credentials: "include",
         headers: { "content-type": "application/json" },
@@ -90,7 +90,7 @@ export default function IdeaDetailsPage() {
       if (res.ok) {
         toast.success("Comment deployed to workflow!");
         setNewComment("");
-        const updatedRes = await fetch(`http://localhost:5000/comments/${id}`);
+        const updatedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`);
         const updatedData = await updatedRes.json();
         setComments(Array.isArray(updatedData) ? updatedData : []);
       }
@@ -104,7 +104,7 @@ export default function IdeaDetailsPage() {
     if (!editingText.trim()) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/comments/${commentId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`, {
         method: "PATCH",
         credentials: "include",
         headers: { "content-type": "application/json" },
@@ -131,7 +131,7 @@ export default function IdeaDetailsPage() {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      const res = await fetch(`http://localhost:5000/comments/${commentId}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`, {
         method: "DELETE",
         credentials: "include",
       });

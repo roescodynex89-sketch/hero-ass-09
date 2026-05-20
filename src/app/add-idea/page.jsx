@@ -39,7 +39,7 @@ export default function AddIdeaPage() {
 
     // server
     try {
-      const jwtRes = await fetch("http://localhost:5000/jwt", {
+      const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -69,7 +69,7 @@ export default function AddIdeaPage() {
 
     // sub
     try {
-      const res = await fetch("http://localhost:5000/ideas", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

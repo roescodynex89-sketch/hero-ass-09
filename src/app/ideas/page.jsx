@@ -19,7 +19,7 @@ export default function IdeasPage() {
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:5000/ideas?search=${search}&category=${category}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/ideas?search=${search}&category=${category}`,
           {
             credentials: "include",
             signal: controller.signal,
