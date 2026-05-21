@@ -447,8 +447,7 @@
 // }
 
 
-// // last
-"use client";
+// // last"use client";
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -485,11 +484,20 @@ export default function IdeaDetailsPage() {
 
     const fetchIdeaDetails = async () => {
       try {
+        // 🔥 [FIX] localStorage থেকে টোকেন সংগ্রহ
+        const token = localStorage.getItem("idea_vault_token");
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/ideas/${id}`,
           {
+            method: "GET",
             credentials: "include",
-          },
+            headers: {
+              "Content-Type": "application/json",
+              // 🔥 [FIX] টোকেন পাস
+              "Authorization": token ? `Bearer ${token}` : "",
+            },
+          }
         );
         if (!res.ok) throw new Error("Idea not found");
         const data = await res.json();
@@ -502,11 +510,20 @@ export default function IdeaDetailsPage() {
 
     const fetchComments = async () => {
       try {
+        // 🔥 [FIX] localStorage থেকে টোকেন সংগ্রহ
+        const token = localStorage.getItem("idea_vault_token");
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
           {
+            method: "GET",
             credentials: "include",
-          },
+            headers: {
+              "Content-Type": "application/json",
+              // 🔥 [FIX] টোকেন পাস
+              "Authorization": token ? `Bearer ${token}` : "",
+            },
+          }
         );
         const data = await res.json();
         setComments(Array.isArray(data) ? data : []);
@@ -530,7 +547,7 @@ export default function IdeaDetailsPage() {
       ideaId: id,
       commentText: newComment,
       userName: currentUser.name,
-      userEmail: currentUser.email, // ব্যাকএন্ডে ভেরিফাই করা হচ্ছে
+      userEmail: currentUser.email,
       userPhoto:
         currentUser.image ||
         "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=100",
@@ -538,10 +555,17 @@ export default function IdeaDetailsPage() {
     };
 
     try {
+      // 🔥 [FIX] টোকেন সংগ্রহ
+      const token = localStorage.getItem("idea_vault_token");
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments`, {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          // 🔥 [FIX] টোকেন পাস
+          "Authorization": token ? `Bearer ${token}` : "",
+        },
         body: JSON.stringify(commentPayload),
       });
 
@@ -553,8 +577,13 @@ export default function IdeaDetailsPage() {
         const updatedRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
           {
+            method: "GET",
             credentials: "include",
-          },
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": token ? `Bearer ${token}` : "",
+            },
+          }
         );
         if (updatedRes.ok) {
           const updatedData = await updatedRes.json();
@@ -574,20 +603,26 @@ export default function IdeaDetailsPage() {
     if (!editingText.trim()) return;
 
     try {
+      // 🔥 [FIX] টোকেন সংগ্রহ
+      const token = localStorage.getItem("idea_vault_token");
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`,
         {
           method: "PATCH",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: editingText }), // ব্যাকএন্ড বডি থেকে 'text' রিড করছে
+          headers: { 
+            "Content-Type": "application/json",
+            // 🔥 [FIX] টোকেন পাস
+            "Authorization": token ? `Bearer ${token}` : "",
+          },
+          body: JSON.stringify({ text: editingText }),
         },
       );
 
       if (res.ok) {
         toast.success("Comment optimized successfully!");
         
-        // লোকাল স্টেট সফলভাবে আপডেট করা
         setComments((prev) =>
           prev.map((c) =>
             c._id === commentId ? { ...c, commentText: editingText, updatedAt: new Date() } : c
@@ -608,12 +643,20 @@ export default function IdeaDetailsPage() {
   // DELETE COMMENT
   const handleDeleteComment = async (commentId) => {
     try {
+      // 🔥 [FIX] টোকেন সংগ্রহ
+      const token = localStorage.getItem("idea_vault_token");
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`,
         {
           method: "DELETE",
           credentials: "include",
-        },
+          headers: {
+            "Content-Type": "application/json",
+            // 🔥 [FIX] টোকেন পাস
+            "Authorization": token ? `Bearer ${token}` : "",
+          },
+        }
       );
 
       if (res.ok) {
@@ -645,7 +688,7 @@ export default function IdeaDetailsPage() {
         {/* --- back*/}
         <button
           onClick={() => router.push("/ideas")}
-          className="group flex items-center gap-2 text-xs font-bold uppercase  text-slate-500 hover:text-cyan-500 transition cursor-pointer outline-none"
+          className="group flex items-center gap-2 text-xs font-bold uppercase text-slate-500 hover:text-cyan-500 transition cursor-pointer outline-none"
         >
           <span className="transform group-hover:-translate-x-1 transition-transform">
             ←
@@ -657,7 +700,7 @@ export default function IdeaDetailsPage() {
           {/* Header  */}
           <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
             <div className="space-y-3 flex-1">
-              <span className="inline-block bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[11px] font-black uppercase  px-3 py-1 rounded-full border border-cyan-500/20">
+              <span className="inline-block bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[11px] font-black uppercase px-3 py-1 rounded-full border border-cyan-500/20">
                 {idea.category}
               </span>
               <h1 className="text-2xl sm:text-4xl font-bold text-slate-900 dark:text-white leading-tight">
@@ -680,7 +723,7 @@ export default function IdeaDetailsPage() {
                 className="rounded-xl object-cover ring-2 ring-cyan-500/10"
               />
               <div>
-                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase ">
+                <p className="text-[10px] text-slate-400 dark:text-slate-500 font-black uppercase">
                   ARCHITECT
                 </p>
                 <p className="text-sm font-bold text-slate-800 dark:text-slate-200">
@@ -720,7 +763,7 @@ export default function IdeaDetailsPage() {
             {/* Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex flex-col justify-center">
-                <h3 className="text-[11px] font-bold uppercase  text-slate-400 mb-1">
+                <h3 className="text-[11px] font-bold uppercase text-slate-400 mb-1">
                   Target Audience
                 </h3>
                 <p className="text-sm sm:text-base font-bold text-slate-700 dark:text-slate-200">
@@ -841,7 +884,7 @@ export default function IdeaDetailsPage() {
                         </span>
                       </div>
 
-                      {/*  Access Check */}
+                      {/* Access Check */}
                       {currentUser &&
                         currentUser.email === comment.userEmail && (
                           <div className="flex gap-3 text-[10px] font-black uppercase tracking-wider shrink-0">

@@ -270,8 +270,9 @@ export default function AddIdeaPage() {
     }
 
     setLoading(true);
+    let activeToken = "";
 
-    // ১. প্রথমে এই সেশনের ইমেইল দিয়ে ফিক্সড টোকেন জেনারেট করা
+    // ১. প্রথমে ব্যাকএন্ড থেকে টোকেন জেনারেট করে নেওয়া এবং অবজেক্ট থেকে টোকেনটি বের করা
     try {
       const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
         method: "POST",
@@ -288,6 +289,13 @@ export default function AddIdeaPage() {
       if (!jwtRes.ok) {
         throw new Error("Failed to synchronize authentication token");
       }
+
+      const jwtData = await jwtRes.json();
+      if (jwtData?.token) {
+        activeToken = jwtData.token;
+        // ব্যাকআপ হিসেবে লোকাল স্টোরেজেও রেখে দেওয়া হলো
+        localStorage.setItem("idea_vault_token", jwtData.token);
+      }
     } catch (jwtErr) {
       console.error("JWT sync issue:", jwtErr);
       toast.error("Authentication sync failed.");
@@ -295,8 +303,7 @@ export default function AddIdeaPage() {
       return;
     }
 
-    // 🔥 [SUPER FIX] এখানে ইমেইলটি সরাসরি সেশন থেকে ফিক্সড করে দেওয়া হলো
-    // ডাটা ফর্মের ভেতর থেকে আসা কোনো ভুল বা ওলটপালট ইমেইলকে এখানে আর পাত্তা দেওয়া হচ্ছে না
+    // ব্যাকএন্ডের রিকোয়ারমেন্ট অনুযায়ী পে-লোড রেডি করা
     const ideaPayload = {
       title: data.title,
       category: data.category,
@@ -308,20 +315,22 @@ export default function AddIdeaPage() {
       problemStatement: data.problemStatement,
       proposedSolution: data.proposedSolution,
       tags: data.tags?.split(",").map((t) => t.trim()) || [],
-      
-      // এই ৩টি ফিল্ড ব্যাকএন্ডের টোকেনের ডাটার সাথে হুবহু এক হতে হবে
       userName: session.user.name,
-      userEmail: session.user.email, // ১০০% গ্যারান্টিড ম্যাচ উইথ টোকেন
+      userEmail: session.user.email, 
       userPhoto: session.user.image,
       createdAt: new Date().toISOString(),
     };
 
-    // ২. আইডিয়া সাবমিট করা
+    // ২. আইডিয়া সাবমিট করা (টোকেনটি Headers-এর মাধ্যমে পাঠানো হচ্ছে)
     try {
+      const token = activeToken || localStorage.getItem("idea_vault_token");
+
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          // 🔥 [SUPER FIX] ব্যাকএন্ডের নতুন ভেরিফায়ারের জন্য হেডার পাস করা হলো
+          "Authorization": `Bearer ${token}` 
         },
         credentials: "include", 
         body: JSON.stringify(ideaPayload),

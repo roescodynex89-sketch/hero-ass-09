@@ -392,17 +392,26 @@ export default function MyIdeasPage() {
 
     const fetchMyIdeas = async () => {
       try {
+        // 🔥 [FIX] localStorage থেকে টোকেন নেওয়া হচ্ছে
+        const token = localStorage.getItem("idea_vault_token");
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/my-idea?email=${currentUser.email}`,
           {
+            method: "GET",
             credentials: "include",
-          },
+            headers: {
+              "Content-Type": "application/json",
+              // 🔥 [FIX] ব্যাকএন্ড ভেরিফিকেশনের জন্য হেডার পাস
+              "Authorization": token ? `Bearer ${token}` : "",
+            },
+          }
         );
         const data = await res.json();
         setMyIdeas(Array.isArray(data) ? data : []);
       } catch (err) {
         toast.error("Failed to load your startup workspace");
-      } finally {
+      } districtly {
         setLoading(false);
       }
     };
@@ -414,19 +423,27 @@ export default function MyIdeasPage() {
     if (!activeDeleteId) return;
 
     try {
+      // 🔥 [FIX] টোকেন সংগ্রহ
+      const token = localStorage.getItem("idea_vault_token");
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/idea/${activeDeleteId}`,
         {
           method: "DELETE",
           credentials: "include",
-        },
+          headers: {
+            "Content-Type": "application/json",
+            // 🔥 [FIX] হেডার পাস
+            "Authorization": token ? `Bearer ${token}` : "",
+          },
+        }
       );
 
       if (res.ok) {
         toast.success("Idea completely wiped from ecosystem");
 
         setMyIdeas((prev) =>
-          prev.filter((idea) => idea._id !== activeDeleteId),
+          prev.filter((idea) => idea._id !== activeDeleteId)
         );
         setActiveDeleteId(null);
       } else {
@@ -453,6 +470,9 @@ export default function MyIdeasPage() {
     if (!activeUpdateIdea) return;
 
     try {
+      // 🔥 [FIX] টোকেন সংগ্রহ
+      const token = localStorage.getItem("idea_vault_token");
+
       const res = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/idea/${activeUpdateIdea._id}`,
         {
@@ -460,18 +480,19 @@ export default function MyIdeasPage() {
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
+            // 🔥 [FIX] হেডার পাস
+            "Authorization": token ? `Bearer ${token}` : "",
           },
           body: JSON.stringify({
             ...editForm,
             estimatedBudget: Number(editForm.estimatedBudget),
           }),
-        },
+        }
       );
 
       if (res.ok) {
         toast.success("Idea workspace updated successfully 🚀");
 
-        // ব্যাকঅ্যান্ডে পাঠানো মডিফাইড ডাটা লোকাল স্টেটের সাথে মার্জ করা হচ্ছে
         setMyIdeas((prev) =>
           prev.map((idea) =>
             idea._id === activeUpdateIdea._id
@@ -517,14 +538,14 @@ export default function MyIdeasPage() {
         {/* Header  */}
         <div className="mb-10 flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-black ">Control Center</h1>
+            <h1 className="text-3xl font-black">Control Center</h1>
             <p className="text-sm text-slate-500 mt-1">
               Manage and audit your deployed architectural blueprints.
             </p>
           </div>
           <button
             onClick={() => router.push("/add-idea")}
-            className="px-4 py-2.5 bg-cyan-500 text-white text-xs font-bold   rounded-xl shadow-md hover:opacity-90 transition cursor-pointer"
+            className="px-4 py-2.5 bg-cyan-500 text-white text-xs font-bold rounded-xl shadow-md hover:opacity-90 transition cursor-pointer"
           >
             + Deploy New Blueprint
           </button>
@@ -599,12 +620,12 @@ export default function MyIdeasPage() {
           </div>
         )}
 
-        {/*  Update  */}
+        {/* Update Modal */}
         {activeUpdateIdea && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-fadeIn">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-xl space-y-4">
               <div>
-                <h3 className="text-lg font-black ">Modify Architecture</h3>
+                <h3 className="text-lg font-black">Modify Architecture</h3>
                 <p className="text-xs text-slate-400">
                   Refine the parameters of your active startup concept.
                 </p>
@@ -701,7 +722,7 @@ export default function MyIdeasPage() {
           </div>
         )}
 
-        {/*  Delete  */}
+        {/* Delete Confirmation */}
         {activeDeleteId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-xs rounded-2xl p-6 shadow-xl space-y-4 text-center">

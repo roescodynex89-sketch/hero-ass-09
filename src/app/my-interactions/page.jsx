@@ -133,11 +133,20 @@ export default function MyInteractionsPage() {
 
     const fetchInteractions = async () => {
       try {
+        // 🔥 [FIX] localStorage থেকে টোকেন নেওয়া হচ্ছে
+        const token = localStorage.getItem("idea_vault_token");
+
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/my-interactions?email=${currentUser.email}`,
           {
+            method: "GET",
             credentials: "include",
-          },
+            headers: {
+              "Content-Type": "application/json",
+              // 🔥 [FIX] ব্যাকএন্ড ভেরিফিকেশনের জন্য হেডার পাস করা হলো
+              "Authorization": token ? `Bearer ${token}` : "",
+            },
+          }
         );
 
         if (!res.ok) {
@@ -178,7 +187,7 @@ export default function MyInteractionsPage() {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-12 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-3xl font-black ">Interaction History</h1>
+          <h1 className="text-3xl font-black">Interaction History</h1>
           <p className="text-sm text-slate-500 mt-1">
             Audit and track your architectural reviews across the network.
           </p>
@@ -206,7 +215,6 @@ export default function MyInteractionsPage() {
                     <span className="text-[10px] font-bold text-cyan-500">
                       COMMENTED ON
                     </span>
-                    {/* ব্যাকঅ্যান্ডের ডাটাবেজ স্ট্রাকচার অনুযায়ী idea_id অথবা ideaId হ্যান্ডেল করা হয়েছে */}
                     <Link
                       href={`/ideas/${log.idea_id || log.ideaId}`}
                       className="block font-bold text-slate-900 dark:text-white hover:underline line-clamp-1 mt-0.5"
@@ -220,7 +228,6 @@ export default function MyInteractionsPage() {
                       : "Recent"}
                   </span>
                 </div>
-                {/* কমেন্ট প্রোপার্টির সম্ভাব্য সব ধরনের নাম (comment, commentText, text) চেক করা হচ্ছে */}
                 <p className="text-sm text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-950/40 p-3 rounded-xl border border-slate-100 dark:border-slate-800/60 leading-relaxed">
                   {log.comment || log.commentText || log.text || "No review description provided."}
                 </p>
