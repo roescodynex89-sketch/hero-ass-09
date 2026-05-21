@@ -30,16 +30,23 @@ export default function IdeaDetailsPage() {
     }
   }, [currentUser, isSessionPending, router]);
 
-  useEffect(() => {
-    if (!id || !currentUser) return;
+
+
+
+
+
+useEffect(() => {
+    // ১. সেশন চেক করা শেষ না হওয়া পর্যন্ত এবং আইডিয়া আইডি না পাওয়া পর্যন্ত অপেক্ষা করবে
+    if (isSessionPending || !id) return; 
+    
+    // ২. যদি সেশন চেক শেষ হয় কিন্তু ইউজার না থাকে, তাহলে রিকোয়েস্ট পাঠাবে না (কারণ প্রথম useEffect তাকে লগইনে পাঠিয়ে দেবে)
+    if (!currentUser) return;
 
     const fetchIdeaDetails = async () => {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/ideas/${id}`,
-          {
-            credentials: "include",
-          },
+          { credentials: "include" }
         );
         if (!res.ok) throw new Error("Idea not found");
         const data = await res.json();
@@ -54,9 +61,7 @@ export default function IdeaDetailsPage() {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
-          {
-            credentials: "include",
-          },
+          { credentials: "include" }
         );
         const data = await res.json();
         setComments(Array.isArray(data) ? data : []);
@@ -69,8 +74,70 @@ export default function IdeaDetailsPage() {
 
     fetchIdeaDetails();
     fetchComments();
-  }, [id, currentUser]);
+    
+  // ✅ ডিপেনডেন্সিতে currentUser এবং isSessionPending দুটোই যোগ করে দিলাম
+  }, [id, currentUser, isSessionPending]);
 
+
+
+
+
+  // useEffect(() => {
+  //   if (!id || !currentUser) return;
+
+  //   const fetchIdeaDetails = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/ideas/${id}`,
+  //         {
+  //           credentials: "include",
+  //         },
+  //       );
+  //       if (!res.ok) throw new Error("Idea not found");
+  //       const data = await res.json();
+  //       setIdea(data);
+  //     } catch (err) {
+  //       toast.error("Failed to load idea details");
+  //       router.push("/ideas");
+  //     }
+  //   };
+
+  //   const fetchComments = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
+  //         {
+  //           credentials: "include",
+  //         },
+  //       );
+  //       const data = await res.json();
+  //       setComments(Array.isArray(data) ? data : []);
+  //     } catch (err) {
+  //       console.error("Error fetching comments", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchIdeaDetails();
+  //   fetchComments();
+  // }, [id, currentUser]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
   //  ADD
   const handleAddComment = async (e) => {
     e.preventDefault();
