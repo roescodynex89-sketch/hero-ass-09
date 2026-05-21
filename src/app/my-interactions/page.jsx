@@ -209,7 +209,7 @@ export default function MyInteractionsPage() {
                       {interaction.ideaTitle}
                     </h3>
                     <p className="text-sm text-slate-600 dark:text-slate-300 italic">
-                      "{interaction.commentText}"
+                     ` {interaction.commentText}``
                     </p>
                   </div>
                   <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
