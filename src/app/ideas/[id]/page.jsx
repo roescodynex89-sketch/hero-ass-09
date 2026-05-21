@@ -35,9 +35,12 @@ export default function IdeaDetailsPage() {
 
     const fetchIdeaDetails = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas/${id}`, {
-          credentials: "include",
-        });
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/ideas/${id}`,
+          {
+            credentials: "include",
+          },
+        );
         if (!res.ok) throw new Error("Idea not found");
         const data = await res.json();
         setIdea(data);
@@ -49,9 +52,12 @@ export default function IdeaDetailsPage() {
 
     const fetchComments = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,{
-        credentials:"include",
-        })
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
+          {
+            credentials: "include",
+          },
+        );
         const data = await res.json();
         setComments(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -92,9 +98,12 @@ export default function IdeaDetailsPage() {
       if (res.ok) {
         toast.success("Comment deployed to workflow!");
         setNewComment("");
-        const updatedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,{
-          credentials:"include",
-        });
+        const updatedRes = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
+          {
+            credentials: "include",
+          },
+        );
         const updatedData = await updatedRes.json();
         setComments(Array.isArray(updatedData) ? updatedData : []);
       }
@@ -108,12 +117,15 @@ export default function IdeaDetailsPage() {
     if (!editingText.trim()) return;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`, {
-        method: "PATCH",
-        credentials: "include",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text: editingText }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`,
+        {
+          method: "PATCH",
+          credentials: "include",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ text: editingText }),
+        },
+      );
 
       if (res.ok) {
         toast.success("Comment optimized successfully!");
@@ -135,10 +147,13 @@ export default function IdeaDetailsPage() {
 
   const handleDeleteComment = async (commentId) => {
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/comments/${commentId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
 
       if (res.ok) {
         toast.success("Comment retracted successfully");
@@ -430,3 +445,4 @@ export default function IdeaDetailsPage() {
     </div>
   );
 }
+// last
