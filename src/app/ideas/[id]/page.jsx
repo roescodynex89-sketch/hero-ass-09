@@ -447,8 +447,15 @@
 // }
 
 
-// // last"use client";
-"use client"
+//  last"use client";
+
+
+
+
+
+
+"use client";
+
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
@@ -484,7 +491,6 @@ export default function IdeaDetailsPage() {
 
     const fetchIdeaDetails = async () => {
       try {
-        // 🔥 [FIX] localStorage থেকে টোকেন সংগ্রহ
         const token = localStorage.getItem("idea_vault_token");
 
         const res = await fetch(
@@ -494,7 +500,6 @@ export default function IdeaDetailsPage() {
             credentials: "include",
             headers: {
               "Content-Type": "application/json",
-              // 🔥 [FIX] টোকেন পাস
               "Authorization": token ? `Bearer ${token}` : "",
             },
           }
@@ -510,7 +515,6 @@ export default function IdeaDetailsPage() {
 
     const fetchComments = async () => {
       try {
-        // 🔥 [FIX] localStorage থেকে টোকেন সংগ্রহ
         const token = localStorage.getItem("idea_vault_token");
 
         const res = await fetch(
@@ -520,7 +524,6 @@ export default function IdeaDetailsPage() {
             credentials: "include",
             headers: {
               "Content-Type": "application/json",
-              // 🔥 [FIX] টোকেন পাস
               "Authorization": token ? `Bearer ${token}` : "",
             },
           }
@@ -555,7 +558,6 @@ export default function IdeaDetailsPage() {
     };
 
     try {
-      // 🔥 [FIX] টোকেন সংগ্রহ
       const token = localStorage.getItem("idea_vault_token");
 
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments`, {
@@ -563,7 +565,6 @@ export default function IdeaDetailsPage() {
         credentials: "include",
         headers: { 
           "Content-Type": "application/json",
-          // 🔥 [FIX] টোকেন পাস
           "Authorization": token ? `Bearer ${token}` : "",
         },
         body: JSON.stringify(commentPayload),
@@ -573,7 +574,6 @@ export default function IdeaDetailsPage() {
         toast.success("Comment deployed to workflow!");
         setNewComment("");
         
-        // কমেন্ট অ্যাড হওয়ার পর নতুন তালিকাটি রি-ফ্যাচ করা
         const updatedRes = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
           {
@@ -603,7 +603,6 @@ export default function IdeaDetailsPage() {
     if (!editingText.trim()) return;
 
     try {
-      // 🔥 [FIX] টোকেন সংগ্রহ
       const token = localStorage.getItem("idea_vault_token");
 
       const res = await fetch(
@@ -613,7 +612,6 @@ export default function IdeaDetailsPage() {
           credentials: "include",
           headers: { 
             "Content-Type": "application/json",
-            // 🔥 [FIX] টোকেন পাস
             "Authorization": token ? `Bearer ${token}` : "",
           },
           body: JSON.stringify({ text: editingText }),
@@ -643,7 +641,6 @@ export default function IdeaDetailsPage() {
   // DELETE COMMENT
   const handleDeleteComment = async (commentId) => {
     try {
-      // 🔥 [FIX] টোকেন সংগ্রহ
       const token = localStorage.getItem("idea_vault_token");
 
       const res = await fetch(
@@ -653,7 +650,6 @@ export default function IdeaDetailsPage() {
           credentials: "include",
           headers: {
             "Content-Type": "application/json",
-            // 🔥 [FIX] টোকেন পাস
             "Authorization": token ? `Bearer ${token}` : "",
           },
         }
@@ -685,7 +681,6 @@ export default function IdeaDetailsPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-300">
       <div className="max-w-4xl mx-auto space-y-8">
-        {/* --- back*/}
         <button
           onClick={() => router.push("/ideas")}
           className="group flex items-center gap-2 text-xs font-bold uppercase text-slate-500 hover:text-cyan-500 transition cursor-pointer outline-none"
@@ -697,7 +692,6 @@ export default function IdeaDetailsPage() {
         </button>
 
         <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-6 sm:p-10 shadow-sm hover:shadow-md transition-shadow duration-300 space-y-8">
-          {/* Header  */}
           <div className="flex flex-col sm:flex-row justify-between items-start gap-6">
             <div className="space-y-3 flex-1">
               <span className="inline-block bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[11px] font-black uppercase px-3 py-1 rounded-full border border-cyan-500/20">
@@ -719,7 +713,7 @@ export default function IdeaDetailsPage() {
                 }
                 width={44}
                 height={44}
-                alt="Architect image"
+                alt="Architect"
                 className="rounded-xl object-cover ring-2 ring-cyan-500/10"
               />
               <div>
@@ -733,7 +727,6 @@ export default function IdeaDetailsPage() {
             </div>
           </div>
 
-          {/*IMAGE SECTION */}
           <div className="w-full relative h-60 sm:h-100 rounded-2xl overflow-hidden shadow-xs border border-slate-100 dark:border-slate-800">
             <Image
               src={
@@ -760,7 +753,6 @@ export default function IdeaDetailsPage() {
               </p>
             </div>
 
-            {/* Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200/60 dark:border-slate-800 flex flex-col justify-center">
                 <h3 className="text-[11px] font-bold uppercase text-slate-400 mb-1">
@@ -802,7 +794,6 @@ export default function IdeaDetailsPage() {
               </div>
             </div>
 
-            {/* Tags Display */}
             {idea.tags && idea.tags.length > 0 && (
               <div className="pt-2 flex items-center gap-2 flex-wrap">
                 {idea.tags.map((tag, i) => (
@@ -818,7 +809,6 @@ export default function IdeaDetailsPage() {
           </div>
         </div>
 
-        {/* --- cmnt--- */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-sm space-y-6">
           <h2 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
             Community Validation Workspace
@@ -827,7 +817,6 @@ export default function IdeaDetailsPage() {
             </span>
           </h2>
 
-          {/* Comment Submission Area */}
           <form onSubmit={handleAddComment} className="space-y-3">
             <textarea
               rows={3}
@@ -847,12 +836,10 @@ export default function IdeaDetailsPage() {
             </div>
           </form>
 
-          {/* Feed List Render */}
           <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
             {comments.length === 0 ? (
               <p className="text-center py-10 text-slate-400 dark:text-slate-500 text-sm font-medium">
-                No community reviews synced yet. Be the first architect to
-                review!
+                No community reviews synced yet. Be the first architect to review!
               </p>
             ) : (
               comments.map((comment) => (
@@ -884,7 +871,6 @@ export default function IdeaDetailsPage() {
                         </span>
                       </div>
 
-                      {/* Access Check */}
                       {currentUser &&
                         currentUser.email === comment.userEmail && (
                           <div className="flex gap-3 text-[10px] font-black uppercase tracking-wider shrink-0">
