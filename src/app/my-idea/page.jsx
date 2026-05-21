@@ -24,44 +24,16 @@ export default function MyIdeasPage() {
     category: "",
   });
 
-  // useEffect(() => {
-  //   if (!currentUser?.email) return;
-
-  //   const fetchMyIdeas = async () => {
-  //     try {
-  //       const res = await fetch(
-  //         `${process.env.NEXT_PUBLIC_API_URL}/my-idea?email=${currentUser.email}`,
-  //         {
-  //           credentials: "include",
-  //         },
-  //       );
-  //       const data = await res.json();
-  //       setMyIdeas(Array.isArray(data) ? data : []);
-  //     } catch (err) {
-  //       toast.error("Failed to load your startup workspace");
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
-
-  //   fetchMyIdeas();
-  // }, [currentUser?.email]);
-
-
-
-
-useEffect(() => {
-    // ১. সেশন লোড হওয়া পর্যন্ত ব্রেক মারো
-    if (isPending) return;
-    
-    // ২. সেশন লোড শেষ কিন্তু ইউজার নাই, তবে রিটার্ন করো
+  useEffect(() => {
     if (!currentUser?.email) return;
 
     const fetchMyIdeas = async () => {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/my-idea?email=${currentUser.email}`,
-          { credentials: "include" },
+          {
+            credentials: "include",
+          },
         );
         const data = await res.json();
         setMyIdeas(Array.isArray(data) ? data : []);
@@ -73,25 +45,19 @@ useEffect(() => {
     };
 
     fetchMyIdeas();
-    
-  // 🎯 ডিপেনডেন্সিতে সেশনের এই স্টেটগুলো থাকা মাস্ট
-  }, [currentUser, isPending]);
-
-
-
-
-
-
-
+  }, [currentUser?.email]);
 
   const handleDelete = async () => {
     if (!activeDeleteId) return;
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/idea/${activeDeleteId}`, {
-        method: "DELETE",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/idea/${activeDeleteId}`,
+        {
+          method: "DELETE",
+          credentials: "include",
+        },
+      );
 
       if (res.ok) {
         toast.success("Idea completely wiped from ecosystem");
@@ -131,7 +97,7 @@ useEffect(() => {
           },
           body: JSON.stringify({
             ...editForm,
-            estimatedBudget: Number(editForm.estimatedBudget), 
+            estimatedBudget: Number(editForm.estimatedBudget),
           }),
         },
       );
@@ -369,9 +335,7 @@ useEffect(() => {
                 ⚠️
               </div>
               <div>
-                <h3 className="text-base font-bold">
-                  Confirm Hard Deletion
-                </h3>
+                <h3 className="text-base font-bold">Confirm Hard Deletion</h3>
                 <p className="text-xs text-slate-400 mt-1">
                   This operation cannot be reversed. Are you absolutely certain?
                 </p>
