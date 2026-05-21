@@ -228,9 +228,10 @@
 
 
 
+
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
@@ -247,7 +248,6 @@ import {
   FiCpu,
 } from "react-icons/fi";
 
-
 export default function AddIdeaPage() {
   const {
     register,
@@ -260,6 +260,34 @@ export default function AddIdeaPage() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
 
+  // 🔥 [FIX] ইউজার পেজে আসার সাথে সাথেই কুকি সিঙ্ক করে নেওয়া হচ্ছে, সাবমিট বাটনে চাপ দেওয়ার আগেই!
+  useEffect(() => {
+    if (!session?.user?.email) return;
+
+    const syncToken = async () => {
+      try {
+        const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            email: session.user.email,
+            name: session.user.name,
+          }),
+        });
+        if (jwtRes.ok) {
+          console.log("Token synchronized early in background.");
+        }
+      } catch (err) {
+        console.error("Background JWT sync issue:", err);
+      }
+    };
+
+    syncToken();
+  }, [session?.user?.email, session?.user?.name]);
+
   const onSubmit = async (data) => {
     if (!session?.user) {
       toast.error("You must be logged in");
@@ -268,46 +296,18 @@ export default function AddIdeaPage() {
 
     setLoading(true);
 
- 
-    try {
-      const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
-          email: session.user.email,
-          name: session.user.name,
-        }),
-      });
-
-      if (!jwtRes.ok) {
-        throw new Error("Failed to synchronize authentication token");
-      }
-
-      const jwtData = await jwtRes.json();
-      console.log("JWT Sync Response:", jwtData); 
-      await new Promise((resolve)=>setTimeout(resolve,300))
-    } catch (jwtErr) {
-      console.error("JWT sync issue:", jwtErr);
-      toast.error("Authentication sync failed. Please try again.");
-      setLoading(false);
-      return; 
-    }
-
-  
+    // ব্যাকএন্ডের রিকোয়ারমেন্ট অনুযায়ী পে-লোড রেডি করা
     const ideaPayload = {
       ...data,
       tags: data.tags?.split(",").map((t) => t.trim()),
       estimatedBudget: Number(data.estimatedBudget),
       userName: session.user.name,
-      userEmail: session.user.email, 
+      userEmail: session.user.email, // ব্যাকএন্ডের কন্ডিশন ভেরিফাই করার জন্য
       userPhoto: session.user.image,
       createdAt: new Date().toISOString(),
     };
 
-    // ২. আইডিয়া সাবমিট করা
+    // আইডিয়া সাবমিট করা
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`, {
         method: "POST",
@@ -467,9 +467,6 @@ export default function AddIdeaPage() {
     </div>
   );
 }
-
-
-
 
 
 
