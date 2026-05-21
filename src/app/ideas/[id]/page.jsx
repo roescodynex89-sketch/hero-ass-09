@@ -40,16 +40,65 @@ export default function IdeaDetailsPage() {
 
 
 
-  useEffect(() => {
-    if (!id || !currentUser) return;
+  // useEffect(() => {
+  //   if (!id || !currentUser) return;
+
+  //   const fetchIdeaDetails = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/ideas/${id}`,
+  //         {
+  //           credentials: "include",
+  //         },
+  //       );
+  //       if (!res.ok) throw new Error("Idea not found");
+  //       const data = await res.json();
+  //       setIdea(data);
+  //     } catch (err) {
+  //       toast.error("Failed to load idea details");
+  //       router.push("/ideas");
+  //     }
+  //   };
+
+  //   const fetchComments = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
+  //         {
+  //           credentials: "include",
+  //         },
+  //       );
+  //       const data = await res.json();
+  //       setComments(Array.isArray(data) ? data : []);
+  //     } catch (err) {
+  //       console.error("Error fetching comments", err);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchIdeaDetails();
+  //   fetchComments();
+  // }, [id, currentUser]);
+
+
+
+
+
+
+
+useEffect(() => {
+    // ১. যতক্ষণ সেশন লোড হচ্ছে অথবা আইডিয়া আইডি পাওয়া যায়নি, ততক্ষণ অপেক্ষা করো
+    if (isSessionPending || !id) return;
+
+    // ২. সেশন চেক শেষ কিন্তু ইউজার লগইন করা নেই, তাহলে ডেটা ফেচ করার দরকার নেই
+    if (!currentUser) return;
 
     const fetchIdeaDetails = async () => {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/ideas/${id}`,
-          {
-            credentials: "include",
-          },
+          { credentials: "include" },
         );
         if (!res.ok) throw new Error("Idea not found");
         const data = await res.json();
@@ -64,9 +113,7 @@ export default function IdeaDetailsPage() {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,
-          {
-            credentials: "include",
-          },
+          { credentials: "include" },
         );
         const data = await res.json();
         setComments(Array.isArray(data) ? data : []);
@@ -79,7 +126,20 @@ export default function IdeaDetailsPage() {
 
     fetchIdeaDetails();
     fetchComments();
-  }, [id, currentUser]);
+    
+  // 🎯 এখানে currentUser এবং isSessionPending দুটোই ট্র্যাক করা হচ্ছে
+  }, [id, currentUser, isSessionPending]);
+
+
+
+
+
+
+
+
+
+
+
 
 
 

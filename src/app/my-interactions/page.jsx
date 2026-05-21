@@ -12,16 +12,46 @@ export default function MyInteractionsPage() {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (!currentUser?.email) return;
+
+  //   const fetchInteractions = async () => {
+  //     try {
+  //       const res = await fetch(
+  //         `${process.env.NEXT_PUBLIC_API_URL}/my-interactions?email=${currentUser.email}`,
+  //         {
+  //           credentials: "include",
+  //         },
+  //       );
+
+  //       if (!res.ok) {
+  //         throw new Error("Fetch failed");
+  //       }
+
+  //       const data = await res.json();
+  //       setInteractions(Array.isArray(data) ? data : []);
+  //     } catch (err) {
+  //       toast.error("Failed to fetch your community footprint");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchInteractions();
+  // }, [currentUser?.email]);
+
+useEffect(() => {
+    // ১. সেশন পেন্ডিং থাকলে কোনো কাজ করবে না
+    if (isPending) return;
+    
+    // ২. সেশন রেডি কিন্তু ইমেইল নাই, মানে লগইন করা নাই
     if (!currentUser?.email) return;
 
     const fetchInteractions = async () => {
       try {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/my-interactions?email=${currentUser.email}`,
-          {
-            credentials: "include",
-          },
+          { credentials: "include" },
         );
 
         if (!res.ok) {
@@ -38,7 +68,11 @@ export default function MyInteractionsPage() {
     };
 
     fetchInteractions();
-  }, [currentUser?.email]);
+    
+  // 🎯 ডিপেনডেন্সি পারফেক্ট করা হলো
+  }, [currentUser, isPending]);
+
+
 
   if (isPending) {
     return (
