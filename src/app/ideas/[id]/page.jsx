@@ -49,7 +49,9 @@ export default function IdeaDetailsPage() {
 
     const fetchComments = async () => {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`);
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,{
+        credentials:"include",
+        })
         const data = await res.json();
         setComments(Array.isArray(data) ? data : []);
       } catch (err) {
@@ -90,7 +92,9 @@ export default function IdeaDetailsPage() {
       if (res.ok) {
         toast.success("Comment deployed to workflow!");
         setNewComment("");
-        const updatedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`);
+        const updatedRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments/${id}`,{
+          credentials:"include",
+        });
         const updatedData = await updatedRes.json();
         setComments(Array.isArray(updatedData) ? updatedData : []);
       }
