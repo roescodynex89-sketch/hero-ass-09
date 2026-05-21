@@ -246,6 +246,7 @@ import {
   FiAlertCircle,
   FiCpu,
 } from "react-icons/fi";
+import { resolve } from "styled-jsx/macro";
 
 export default function AddIdeaPage() {
   const {
@@ -287,6 +288,7 @@ export default function AddIdeaPage() {
 
       const jwtData = await jwtRes.json();
       console.log("JWT Sync Response:", jwtData); 
+      await new Promise((resolve)=>setTimeout(resolve,300))
     } catch (jwtErr) {
       console.error("JWT sync issue:", jwtErr);
       toast.error("Authentication sync failed. Please try again.");
