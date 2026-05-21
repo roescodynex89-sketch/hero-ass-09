@@ -1,237 +1,3 @@
-// "use client";
-
-// import { useState } from "react";
-// import { useForm } from "react-hook-form";
-// import { toast } from "sonner";
-// import { authClient } from "@/lib/auth-client";
-// import { useRouter } from "next/navigation";
-
-// import {
-//   FiType,
-//   FiAlignLeft,
-//   FiTag,
-//   FiImage,
-//   FiDollarSign,
-//   FiUsers,
-//   FiAlertCircle,
-//   FiCpu,
-// } from "react-icons/fi";
-
-// export default function AddIdeaPage() {
-//   const {
-//     register,
-//     handleSubmit,
-//     reset,
-//     formState: { errors },
-//   } = useForm();
-
-//   const [loading, setLoading] = useState(false);
-//   const { data: session } = authClient.useSession();
-//   const router = useRouter();
-
-//   const onSubmit = async (data) => {
-//     if (!session?.user) {
-//       toast.error("You must be logged in");
-//       return;
-//     }
-
-//     setLoading(true);
-
-//     // server
-//     try {
-//       const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
-//         method: "POST",
-//         headers: {
-//           "content-type": "application/json",
-//         },
-//         credentials: "include",
-//         body: JSON.stringify({
-//           email: session.user.email,
-//           name: session.user.name,
-//         }),
-//       });
-
-//       const jwtData = await jwtRes.json();
-//       console.log("JWT Sync Response:", jwtData); // Debugging log
-//     } catch (jwtErr) {
-//       console.error("JWT sync issue:", jwtErr);
-//     }
-
-//     const ideaPayload = {
-//       ...data,
-//       tags: data.tags?.split(",").map((t) => t.trim()),
-//       estimatedBudget: Number(data.estimatedBudget),
-//       userName: session.user.name,
-//       userEmail: session.user.email,
-//       userPhoto: session.user.image,
-//       createdAt: new Date().toISOString(),
-//     };
-
-//     // sub
-//     try {
-//       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`, {
-//         method: "POST",
-//         headers: {
-//           "content-type": "application/json",
-//         },
-//         credentials: "include",
-//         body: JSON.stringify(ideaPayload),
-//       });
-
-//       if (!res.ok) throw new Error("Failed");
-
-//       toast.success("Idea submitted successfully 🚀");
-//       reset();
-//       router.push("/my-idea");
-//     } catch (err) {
-//       toast.error("Failed to submit idea");
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-//   const fields = [
-//     { name: "shortDescription", label: "Short Description", icon: FiAlignLeft },
-//     { name: "description", label: "Detailed Description", icon: FiAlignLeft },
-//     { name: "tags", label: "Tags (comma separated)", icon: FiTag },
-//     { name: "imageURL", label: "Image URL", icon: FiImage },
-//     { name: "estimatedBudget", label: "Estimated Budget", icon: FiDollarSign },
-//     { name: "targetAudience", label: "Target Audience", icon: FiUsers },
-//     {
-//       name: "problemStatement",
-//       label: "Problem Statement",
-//       icon: FiAlertCircle,
-//     },
-//     { name: "proposedSolution", label: "Proposed Solution", icon: FiCpu },
-//   ];
-
-//   const textareaFields = [
-//     "shortDescription",
-//     "description",
-//     "problemStatement",
-//     "proposedSolution",
-//   ];
-
-//   return (
-//     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-10">
-//       <div className="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10">
-//         {/* header */}
-//         <div className="mb-8 text-center">
-//           <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
-//             Add New Startup Idea
-//           </h2>
-//           <p className="text-sm text-slate-500 mt-2">
-//             Share your idea with the world 🌍
-//           </p>
-//         </div>
-
-//         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-//           {/* title */}
-//           <div>
-//             <label className="text-sm font-medium flex items-center gap-2">
-//               <FiType /> Idea Title
-//             </label>
-//             <input
-//               {...register("title", { required: "Title is required" })}
-//               className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
-//               placeholder="Enter idea title"
-//             />
-//             {errors.title && (
-//               <p className="text-red-500 text-xs mt-1">
-//                 {errors.title.message}
-//               </p>
-//             )}
-//           </div>
-
-//           {/* Category dropdown */}
-//           <div>
-//             <label className="text-sm font-medium">Category</label>
-//             <select
-//               {...register("category", { required: "Category is required" })}
-//               className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 
-//                outline-none bg-slate-900"
-//             >
-//               <option value="">Select category</option>
-//               <option value="Tech">Tech</option>
-//               <option value="AI">AI</option>
-//               <option value="Health">Health</option>
-//               <option value="Education">Education</option>
-//               <option value="FinTech">FinTech</option>
-//             </select>
-//             {errors.category && (
-//               <p className="text-red-500 text-xs mt-1">
-//                 {errors.category.message}
-//               </p>
-//             )}
-//           </div>
-
-//           {/* Dynamic Fields */}
-//           {fields.map((f) => {
-//             const Icon = f.icon;
-
-//             return (
-//               <div key={f.name}>
-//                 <label className="text-sm font-medium flex items-center gap-2">
-//                   <Icon /> {f.label}
-//                 </label>
-
-//                 {textareaFields.includes(f.name) ? (
-//                   <textarea
-//                     {...register(f.name, {
-//                       required: `${f.label} is required`,
-//                     })}
-//                     rows={3}
-//                     className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
-//                     placeholder={f.label}
-//                   />
-//                 ) : (
-//                   <input
-//                     type={f.name === "estimatedBudget" ? "number" : "text"}
-//                     {...register(f.name, {
-//                       required: `${f.label} is required`,
-//                       ...(f.name === "imageURL" && {
-//                         pattern: {
-//                           value: /^https?:\/\/.+/,
-//                           message: "Enter valid image URL",
-//                         },
-//                       }),
-//                     })}
-//                     className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
-//                     placeholder={f.label}
-//                   />
-//                 )}
-
-//                 {errors[f.name] && (
-//                   <p className="text-red-500 text-xs mt-1">
-//                     {errors[f.name].message}
-//                   </p>
-//                 )}
-//               </div>
-//             );
-//           })}
-
-//           {/* Submit */}
-//           <button
-//             type="submit"
-//             disabled={loading}
-//             className="w-full py-3 rounded-xl bg-linear-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:scale-[1.01] active:scale-95 transition cursor-pointer"
-//           >
-//             {loading ? "Submitting..." : "Submit Idea"}
-//           </button>
-//         </form>
-//       </div>
-//     </div>
-//   );
-// }
-
-
-
-
-
-
-
-
-
 "use client";
 
 import { useState } from "react";
@@ -260,111 +26,169 @@ export default function AddIdeaPage() {
   } = useForm();
 
   const [loading, setLoading] = useState(false);
-  const { data: session } = authClient.useSession();
+
+  const { data: session, isPending } = authClient.useSession();
+
   const router = useRouter();
 
   const onSubmit = async (data) => {
-    if (!session?.user?.email) {
-      toast.error("You must be logged in");
+    if (!session?.user) {
+      toast.error("Please login first");
       return;
     }
 
     setLoading(true);
-    let activeToken = "";
 
-    // ১. প্রথমে ব্যাকএন্ড থেকে টোকেন জেনারেট করে নেওয়া এবং অবজেক্ট থেকে টোকেনটি বের করা
     try {
-      const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      // =========================
+      // JWT CREATE
+      // =========================
+      const jwtRes = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/jwt`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            email: session.user.email,
+            name: session.user.name,
+            image: session.user.image,
+          }),
         },
-        credentials: "include",
-        body: JSON.stringify({
-          email: session.user.email,
-          name: session.user.name,
-        }),
-      });
-
-      if (!jwtRes.ok) {
-        throw new Error("Failed to synchronize authentication token");
-      }
+      );
 
       const jwtData = await jwtRes.json();
-      if (jwtData?.token) {
-        activeToken = jwtData.token;
-        // ব্যাকআপ হিসেবে লোকাল স্টোরেজেও রেখে দেওয়া হলো
-        localStorage.setItem("idea_vault_token", jwtData.token);
+
+      // backend token response check
+      if (!jwtRes.ok) {
+        throw new Error(jwtData?.message || "JWT failed");
       }
-    } catch (jwtErr) {
-      console.error("JWT sync issue:", jwtErr);
-      toast.error("Authentication sync failed.");
-      setLoading(false);
-      return;
-    }
 
-    // ব্যাকএন্ডের রিকোয়ারমেন্ট অনুযায়ী পে-লোড রেডি করা
-    const ideaPayload = {
-      title: data.title,
-      category: data.category,
-      shortDescription: data.shortDescription,
-      description: data.description,
-      imageURL: data.imageURL,
-      estimatedBudget: Number(data.estimatedBudget),
-      targetAudience: data.targetAudience,
-      problemStatement: data.problemStatement,
-      proposedSolution: data.proposedSolution,
-      tags: data.tags?.split(",").map((t) => t.trim()) || [],
-      userName: session.user.name,
-      userEmail: session.user.email, 
-      userPhoto: session.user.image,
-      createdAt: new Date().toISOString(),
-    };
+      // =========================
+      // IDEA PAYLOAD
+      // =========================
+      const ideaPayload = {
+        title: data.title,
+        shortDescription: data.shortDescription,
+        description: data.description,
+        category: data.category,
 
-    // ২. আইডিয়া সাবমিট করা (টোকেনটি Headers-এর মাধ্যমে পাঠানো হচ্ছে)
-    try {
-      const token = activeToken || localStorage.getItem("idea_vault_token");
+        // tags convert array
+        tags: data.tags
+          ? data.tags
+              .split(",")
+              .map((tag) => tag.trim())
+              .filter(Boolean)
+          : [],
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // 🔥 [SUPER FIX] ব্যাকএন্ডের নতুন ভেরিফায়ারের জন্য হেডার পাস করা হলো
-          "Authorization": `Bearer ${token}` 
+        imageURL: data.imageURL,
+
+        estimatedBudget: data.estimatedBudget
+          ? Number(data.estimatedBudget)
+          : null,
+
+        targetAudience: data.targetAudience,
+        problemStatement: data.problemStatement,
+        proposedSolution: data.proposedSolution,
+
+        // user info
+        userName: session.user.name,
+        userEmail: session.user.email,
+        userPhoto: session.user.image,
+
+        createdAt: new Date().toISOString(),
+      };
+
+      // =========================
+      // ADD IDEA
+      // =========================
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/ideas`,
+        {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+
+            // backend support header token
+            authorization: `Bearer ${jwtData.token}`,
+          },
+          credentials: "include",
+          body: JSON.stringify(ideaPayload),
         },
-        credentials: "include", 
-        body: JSON.stringify(ideaPayload),
-      });
+      );
+
+      const result = await res.json();
 
       if (!res.ok) {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Forbidden or Failed");
+        throw new Error(result?.message || "Failed to add idea");
       }
 
       toast.success("Idea submitted successfully 🚀");
+
       reset();
+
       router.push("/my-idea");
-    } catch (err) {
-      console.error(err);
-      toast.error(err.message || "Failed to submit idea");
+    } catch (error) {
+      console.error(error);
+
+      toast.error(error.message || "Failed to submit idea");
     } finally {
       setLoading(false);
     }
   };
 
+  // loading session
+  if (isPending) {
+    return (
+      <div className="min-h-screen flex justify-center items-center bg-slate-50 dark:bg-slate-950">
+        <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
   const fields = [
-    { name: "shortDescription", label: "Short Description", icon: FiAlignLeft },
-    { name: "description", label: "Detailed Description", icon: FiAlignLeft },
-    { name: "tags", label: "Tags (comma separated)", icon: FiTag },
-    { name: "imageURL", label: "Image URL", icon: FiImage },
-    { name: "estimatedBudget", label: "Estimated Budget", icon: FiDollarSign },
-    { name: "targetAudience", label: "Target Audience", icon: FiUsers },
+    {
+      name: "shortDescription",
+      label: "Short Description",
+      icon: FiAlignLeft,
+    },
+    {
+      name: "description",
+      label: "Detailed Description",
+      icon: FiAlignLeft,
+    },
+    {
+      name: "tags",
+      label: "Tags (comma separated)",
+      icon: FiTag,
+    },
+    {
+      name: "imageURL",
+      label: "Image URL",
+      icon: FiImage,
+    },
+    {
+      name: "estimatedBudget",
+      label: "Estimated Budget",
+      icon: FiDollarSign,
+    },
+    {
+      name: "targetAudience",
+      label: "Target Audience",
+      icon: FiUsers,
+    },
     {
       name: "problemStatement",
       label: "Problem Statement",
       icon: FiAlertCircle,
     },
-    { name: "proposedSolution", label: "Proposed Solution", icon: FiCpu },
+    {
+      name: "proposedSolution",
+      label: "Proposed Solution",
+      icon: FiCpu,
+    },
   ];
 
   const textareaFields = [
@@ -377,26 +201,37 @@ export default function AddIdeaPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-10">
       <div className="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10">
+        {/* HEADER */}
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
             Add New Startup Idea
           </h2>
+
           <p className="text-sm text-slate-500 mt-2">
-            Share your idea with the world 🌍
+            Share your innovative startup concept with the community
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          {/* title */}
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-5"
+        >
+          {/* TITLE */}
           <div>
             <label className="text-sm font-medium flex items-center gap-2">
-              <FiType /> Idea Title
+              <FiType />
+              Idea Title
             </label>
+
             <input
-              {...register("title", { required: "Title is required" })}
-              className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
-              placeholder="Enter idea title"
+              type="text"
+              placeholder="Enter startup idea title"
+              {...register("title", {
+                required: "Title is required",
+              })}
+              className="w-full mt-1 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
             />
+
             {errors.title && (
               <p className="text-red-500 text-xs mt-1">
                 {errors.title.message}
@@ -404,13 +239,17 @@ export default function AddIdeaPage() {
             )}
           </div>
 
-          {/* Category dropdown */}
+          {/* CATEGORY */}
           <div>
-            <label className="text-sm font-medium">Category</label>
+            <label className="text-sm font-medium">
+              Category
+            </label>
+
             <select
-              {...register("category", { required: "Category is required" })}
-              className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 
-               outline-none bg-white dark:bg-slate-900"
+              {...register("category", {
+                required: "Category is required",
+              })}
+              className="w-full mt-1 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 outline-none focus:ring-2 focus:ring-cyan-500"
             >
               <option value="">Select category</option>
               <option value="Tech">Tech</option>
@@ -419,6 +258,7 @@ export default function AddIdeaPage() {
               <option value="Education">Education</option>
               <option value="FinTech">FinTech</option>
             </select>
+
             {errors.category && (
               <p className="text-red-500 text-xs mt-1">
                 {errors.category.message}
@@ -426,55 +266,70 @@ export default function AddIdeaPage() {
             )}
           </div>
 
-          {/* Dynamic Fields */}
-          {fields.map((f) => {
-            const Icon = f.icon;
+          {/* DYNAMIC FIELDS */}
+          {fields.map((field) => {
+            const Icon = field.icon;
 
             return (
-              <div key={f.name}>
+              <div key={field.name}>
                 <label className="text-sm font-medium flex items-center gap-2">
-                  <Icon /> {f.label}
+                  <Icon />
+                  {field.label}
                 </label>
 
-                {textareaFields.includes(f.name) ? (
+                {textareaFields.includes(field.name) ? (
                   <textarea
-                    {...register(f.name, {
-                      required: `${f.label} is required`,
+                    rows={4}
+                    placeholder={field.label}
+                    {...register(field.name, {
+                      required:
+                        field.name !== "tags" &&
+                        field.name !== "estimatedBudget"
+                          ? `${field.label} is required`
+                          : false,
                     })}
-                    rows={3}
-                    className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
-                    placeholder={f.label}
+                    className="w-full mt-1 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500 resize-none"
                   />
                 ) : (
                   <input
-                    type={f.name === "estimatedBudget" ? "number" : "text"}
-                    {...register(f.name, {
-                      required: `${f.label} is required`,
-                      ...(f.name === "imageURL" && {
+                    type={
+                      field.name === "estimatedBudget"
+                        ? "number"
+                        : "text"
+                    }
+                    placeholder={field.label}
+                    {...register(field.name, {
+                      required:
+                        field.name !== "tags" &&
+                        field.name !== "estimatedBudget"
+                          ? `${field.label} is required`
+                          : false,
+
+                      ...(field.name === "imageURL" && {
                         pattern: {
                           value: /^https?:\/\/.+/,
                           message: "Enter valid image URL",
                         },
                       }),
                     })}
-                    className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
-                    placeholder={f.label}
+                    className="w-full mt-1 p-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-transparent outline-none focus:ring-2 focus:ring-cyan-500"
                   />
                 )}
 
-                {errors[f.name] && (
+                {errors[field.name] && (
                   <p className="text-red-500 text-xs mt-1">
-                    {errors[f.name].message}
+                    {errors[field.name]?.message}
                   </p>
                 )}
               </div>
             );
           })}
 
+          {/* SUBMIT BUTTON */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-linear-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:scale-[1.01] active:scale-95 transition cursor-pointer"
+            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:scale-[1.01] active:scale-95 transition cursor-pointer disabled:opacity-50"
           >
             {loading ? "Submitting..." : "Submit Idea"}
           </button>
