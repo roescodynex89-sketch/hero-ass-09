@@ -228,18 +228,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 "use client";
 
 import { useState } from "react";
@@ -279,34 +267,66 @@ export default function AddIdeaPage() {
 
     setLoading(true);
 
+    // ১. প্রথম ধাপে ব্যাকএন্ডে JWT টোকেন সিঙ্ক করা এবং কুকি সেট নিশ্চিত করা
+    try {
+      const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: session.user.email,
+          name: session.user.name,
+        }),
+      });
+
+      if (!jwtRes.ok) {
+        throw new Error("Failed to synchronize authentication token");
+      }
+
+      const jwtData = await jwtRes.json();
+      console.log("JWT Sync Response:", jwtData); 
+    } catch (jwtErr) {
+      console.error("JWT sync issue:", jwtErr);
+      toast.error("Authentication sync failed. Please try again.");
+      setLoading(false);
+      return; // টোকেন সিঙ্ক না হলে এখানেই রিকোয়েস্ট থামিয়ে দেওয়া ভালো
+    }
+
+    // ব্যাকএন্ডের রিকোয়ারমেন্ট অনুযায়ী পে-লোড রেডি করা
     const ideaPayload = {
       ...data,
       tags: data.tags?.split(",").map((t) => t.trim()),
       estimatedBudget: Number(data.estimatedBudget),
       userName: session.user.name,
-      userEmail: session.user.email,
+      userEmail: session.user.email, // ব্যাকএন্ড এই ইমেইলটি ভেরিফাই করছে
       userPhoto: session.user.image,
       createdAt: new Date().toISOString(),
     };
 
-    // সাবমিট লজিক সরাসরি ব্যাকএন্ডের /ideas রাউটে যাবে
+    // ২. আইডিয়া সাবমিট করা
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`, {
         method: "POST",
         headers: {
-          "content-type": "application/json",
+          "Content-Type": "application/json",
         },
-        credentials: "include",
+        credentials: "include", // কুকি টোকেন পাঠানোর জন্য এটি বাধ্যতামূলক
         body: JSON.stringify(ideaPayload),
       });
 
-      if (!res.ok) throw new Error("Failed");
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to submit idea");
+      }
 
       toast.success("Idea submitted successfully 🚀");
       reset();
       router.push("/my-idea");
     } catch (err) {
-      toast.error("Failed to submit idea");
+      console.error(err);
+      toast.error(err.message || "Failed to submit idea");
     } finally {
       setLoading(false);
     }
@@ -371,7 +391,7 @@ export default function AddIdeaPage() {
             <select
               {...register("category", { required: "Category is required" })}
               className="w-full mt-1 p-3 rounded-xl border dark:border-slate-700 
-               outline-none bg-slate-900"
+               outline-none bg-white dark:bg-slate-900"
             >
               <option value="">Select category</option>
               <option value="Tech">Tech</option>
@@ -445,3 +465,13 @@ export default function AddIdeaPage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
