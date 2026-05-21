@@ -228,7 +228,6 @@
 
 
 
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -260,26 +259,23 @@ export default function AddIdeaPage() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
 
-  // 🔥 [FIX] ইউজার পেজে আসার সাথে সাথেই কুকি সিঙ্ক করে নেওয়া হচ্ছে, সাবমিট বাটনে চাপ দেওয়ার আগেই!
+  // ১. পেজ লোড হওয়ার সাথে সাথে ব্যাকগ্রাউন্ডে কুকি সিঙ্ক (toLowerCase সহ)
   useEffect(() => {
     if (!session?.user?.email) return;
 
     const syncToken = async () => {
       try {
-        const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           credentials: "include",
           body: JSON.stringify({
-            email: session.user.email,
+            email: session.user.email.toLowerCase(), // ফিক্স: ছোট হাতের অক্ষরে সিঙ্ক
             name: session.user.name,
           }),
         });
-        if (jwtRes.ok) {
-          console.log("Token synchronized early in background.");
-        }
       } catch (err) {
         console.error("Background JWT sync issue:", err);
       }
@@ -302,19 +298,19 @@ export default function AddIdeaPage() {
       tags: data.tags?.split(",").map((t) => t.trim()),
       estimatedBudget: Number(data.estimatedBudget),
       userName: session.user.name,
-      userEmail: session.user.email, // ব্যাকএন্ডের কন্ডিশন ভেরিফাই করার জন্য
+      userEmail: session.user.email.toLowerCase(), // ফিক্স: ব্যাকএন্ড কন্ডিশন ম্যাচ করার জন্য নিশ্চিতভাবে ছোট হাতের করা হলো
       userPhoto: session.user.image,
       createdAt: new Date().toISOString(),
     };
 
-    // আইডিয়া সাবমিট করা
+    // ২. আইডিয়া সাবমিট করা
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include", // কুকি টোকেন পাঠানোর জন্য এটি বাধ্যতামূলক
+        credentials: "include", 
         body: JSON.stringify(ideaPayload),
       });
 
@@ -359,7 +355,6 @@ export default function AddIdeaPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950 px-4 py-10">
       <div className="w-full max-w-3xl bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 sm:p-10">
-        {/* header */}
         <div className="mb-8 text-center">
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
             Add New Startup Idea
@@ -454,7 +449,6 @@ export default function AddIdeaPage() {
             );
           })}
 
-          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
@@ -467,7 +461,6 @@ export default function AddIdeaPage() {
     </div>
   );
 }
-
 
 
 
