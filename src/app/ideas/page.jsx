@@ -10,14 +10,7 @@ export default function IdeasPage() {
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
-  const categories = [
-    "All",
-    "Tech",
-    "AI",
-    "Health",
-    "Education",
-    "FinTech",
-  ];
+  const categories = ["All", "Tech", "AI", "Health", "Education", "FinTech"];
 
   useEffect(() => {
     const controller = new AbortController();
@@ -78,7 +71,6 @@ export default function IdeasPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-
         {/* Header */}
         <div className="text-center mb-10">
           <h1 className="text-4xl font-black tracking-tight">
@@ -92,7 +84,6 @@ export default function IdeasPage() {
 
         {/* Search + Filter */}
         <div className="flex flex-col md:flex-row gap-4 justify-between items-center mb-12 bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-sm">
-
           {/* Search */}
           <div className="w-full md:w-1/2">
             <input
@@ -128,28 +119,22 @@ export default function IdeasPage() {
             <div className="w-12 h-12 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : ideas.length === 0 ? (
-
           /* Empty State */
           <div className="text-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
             <p className="text-slate-500 text-lg font-medium">
               No matching startup concepts deployed yet.
             </p>
           </div>
-
         ) : (
-
           /* Ideas Grid */
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
             {ideas.map((idea) => (
               <div
                 key={idea._id}
                 className="flex flex-col justify-between bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               >
-
                 {/* Image */}
                 <div className="relative h-52 bg-slate-200 dark:bg-slate-800">
-
                   <Image
                     src={
                       idea.imageURL ||
@@ -167,7 +152,6 @@ export default function IdeasPage() {
 
                 {/* Content */}
                 <div className="p-6 flex flex-col flex-1 justify-between">
-
                   <div>
                     <h2 className="text-xl font-bold line-clamp-1">
                       {idea.title}
@@ -180,7 +164,6 @@ export default function IdeasPage() {
 
                   {/* Meta */}
                   <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-
                     <div>
                       <p className="text-[11px] text-slate-400 font-medium">
                         DEPLOYED BY
@@ -216,7 +199,6 @@ export default function IdeasPage() {
                 </div>
               </div>
             ))}
-
           </div>
         )}
       </div>

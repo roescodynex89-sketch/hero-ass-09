@@ -26,7 +26,7 @@ export default function MyIdeasPage() {
     category: "",
   });
 
-  // ================= FETCH USER IDEAS =================
+  // idea fe
   useEffect(() => {
     if (isPending) return;
 
@@ -41,12 +41,13 @@ export default function MyIdeasPage() {
         setLoading(true);
 
         const res = await fetch(
-          `${API_URL}/ideas/user/${currentUser.email}`,
+          `${API_URL}/my-idea/?email=${currentUser.email}`,
           {
-            method: "GET",
             credentials: "include",
-            cache: "no-store",
-          }
+            headers: {
+              // authorization: `Bearer ${token}`,
+            },
+          },
         );
 
         if (!res.ok) {
@@ -67,12 +68,12 @@ export default function MyIdeasPage() {
     fetchMyIdeas();
   }, [currentUser, isPending, router]);
 
-  // ================= DELETE IDEA =================
+  // delete idea
   const handleDelete = async () => {
     if (!activeDeleteId) return;
 
     try {
-      const res = await fetch(`${API_URL}/ideas/${activeDeleteId}`, {
+      const res = await fetch(`${API_URL}/idea/${activeDeleteId}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -83,9 +84,7 @@ export default function MyIdeasPage() {
 
       toast.success("Idea deleted successfully");
 
-      setMyIdeas((prev) =>
-        prev.filter((idea) => idea._id !== activeDeleteId)
-      );
+      setMyIdeas((prev) => prev.filter((idea) => idea._id !== activeDeleteId));
 
       setActiveDeleteId(null);
     } catch (err) {
@@ -94,7 +93,7 @@ export default function MyIdeasPage() {
     }
   };
 
-  // ================= OPEN UPDATE MODAL =================
+  //update
   const openUpdateModal = (idea) => {
     setActiveUpdateIdea(idea);
 
@@ -106,7 +105,6 @@ export default function MyIdeasPage() {
     });
   };
 
-  // ================= UPDATE IDEA =================
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
 
@@ -118,33 +116,30 @@ export default function MyIdeasPage() {
         estimatedBudget: Number(editForm.estimatedBudget) || 0,
       };
 
-      const res = await fetch(
-        `${API_URL}/ideas/${activeUpdateIdea._id}`,
-        {
-          method: "PATCH",
-          credentials: "include",
-          headers: {
-            "content-type": "application/json",
-          },
-          body: JSON.stringify(payload),
-        }
-      );
+      const res = await fetch(`${API_URL}/idea/${activeUpdateIdea._id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
       if (!res.ok) {
         throw new Error("Update failed");
       }
 
-      const updatedIdea = await res.json();
+      // const updatedIdea = await res.json();
 
       setMyIdeas((prev) =>
         prev.map((idea) =>
           idea._id === activeUpdateIdea._id
             ? {
                 ...idea,
-                ...updatedIdea,
+                ...payload,
               }
-            : idea
-        )
+            : idea,
+        ),
       );
 
       toast.success("Idea updated successfully");
@@ -156,7 +151,7 @@ export default function MyIdeasPage() {
     }
   };
 
-  // ================= LOADING =================
+  // load
   if (isPending || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -165,7 +160,6 @@ export default function MyIdeasPage() {
     );
   }
 
-  // ================= NO USER =================
   if (!currentUser) return null;
 
   return (
@@ -192,9 +186,7 @@ export default function MyIdeasPage() {
         {/* EMPTY */}
         {!myIdeas.length ? (
           <div className="text-center py-20 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl">
-            <p className="text-slate-400 font-medium">
-              No ideas found
-            </p>
+            <p className="text-slate-400 font-medium">No ideas found</p>
           </div>
         ) : (
           <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl overflow-hidden shadow-xs">
@@ -216,9 +208,7 @@ export default function MyIdeasPage() {
                       className="hover:bg-slate-50/50 dark:hover:bg-slate-950/20 transition"
                     >
                       <td className="p-4">
-                        <p className="font-bold line-clamp-1">
-                          {idea.title}
-                        </p>
+                        <p className="font-bold line-clamp-1">{idea.title}</p>
 
                         <p className="text-xs text-slate-400 line-clamp-1 mt-1">
                           {idea.shortDescription}
@@ -260,22 +250,15 @@ export default function MyIdeasPage() {
           </div>
         )}
 
-        {/* UPDATE MODAL */}
+        {/* UPDATE  */}
         {activeUpdateIdea && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-xl">
-              <h3 className="text-xl font-bold mb-5">
-                Update Idea
-              </h3>
+              <h3 className="text-xl font-bold mb-5">Update Idea</h3>
 
-              <form
-                onSubmit={handleUpdateSubmit}
-                className="space-y-4"
-              >
+              <form onSubmit={handleUpdateSubmit} className="space-y-4">
                 <div>
-                  <label className="text-sm font-medium">
-                    Title
-                  </label>
+                  <label className="text-sm font-medium">Title</label>
 
                   <input
                     type="text"
@@ -312,9 +295,7 @@ export default function MyIdeasPage() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="text-sm font-medium">
-                      Budget
-                    </label>
+                    <label className="text-sm font-medium">Budget</label>
 
                     <input
                       type="number"
@@ -330,9 +311,7 @@ export default function MyIdeasPage() {
                   </div>
 
                   <div>
-                    <label className="text-sm font-medium">
-                      Category
-                    </label>
+                    <label className="text-sm font-medium">Category</label>
 
                     <select
                       value={editForm.category}
@@ -374,7 +353,7 @@ export default function MyIdeasPage() {
           </div>
         )}
 
-        {/* DELETE MODAL */}
+        {/* DELETE */}
         {activeDeleteId && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
             <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-xl text-center">
@@ -382,9 +361,7 @@ export default function MyIdeasPage() {
                 ⚠️
               </div>
 
-              <h3 className="mt-4 text-lg font-bold">
-                Delete Idea?
-              </h3>
+              <h3 className="mt-4 text-lg font-bold">Delete Idea?</h3>
 
               <p className="text-sm text-slate-400 mt-2">
                 This action cannot be undone.

@@ -17,7 +17,7 @@ export default function MyInteractionsPage() {
   const [interactions, setInteractions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ================= FETCH INTERACTIONS =================
+  //
   useEffect(() => {
     if (isPending) return;
 
@@ -32,12 +32,12 @@ export default function MyInteractionsPage() {
         setLoading(true);
 
         const res = await fetch(
-          `${API_URL}/comments/user/${currentUser.email}`,
+          `${API_URL}/my-interactions?email=${currentUser.email}`,
           {
             method: "GET",
             credentials: "include",
             cache: "no-store",
-          }
+          },
         );
 
         if (!res.ok) {
@@ -58,7 +58,6 @@ export default function MyInteractionsPage() {
     fetchInteractions();
   }, [currentUser, isPending, router]);
 
-  // ================= LOADING =================
   if (isPending || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
@@ -67,7 +66,6 @@ export default function MyInteractionsPage() {
     );
   }
 
-  // ================= NO USER =================
   if (!currentUser) return null;
 
   return (
@@ -75,9 +73,7 @@ export default function MyInteractionsPage() {
       <div className="max-w-3xl mx-auto">
         {/* HEADER */}
         <div className="mb-8">
-          <h1 className="text-3xl font-black">
-            My Interactions
-          </h1>
+          <h1 className="text-3xl font-black">My Interactions</h1>
 
           <p className="text-sm text-slate-500 mt-1">
             Track your comments and community activity.

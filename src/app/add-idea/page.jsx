@@ -40,35 +40,29 @@ export default function AddIdeaPage() {
     setLoading(true);
 
     try {
-      // =========================
       // JWT CREATE
-      // =========================
-      const jwtRes = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/jwt`,
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            email: session.user.email,
-            name: session.user.name,
-            image: session.user.image,
-          }),
+
+      const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
         },
-      );
+        credentials: "include",
+        body: JSON.stringify({
+          email: session.user.email,
+          name: session.user.name,
+          image: session.user.image,
+        }),
+      });
 
       const jwtData = await jwtRes.json();
 
-      // backend token response check
-      if (!jwtRes.ok) {
-        throw new Error(jwtData?.message || "JWT failed");
+      if (jwtData?.token) {
+        localStorage.setItem("idea_vault_token", jwtData.token);
       }
 
-      // =========================
-      // IDEA PAYLOAD
-      // =========================
+      // Idea
+
       const ideaPayload = {
         title: data.title,
         shortDescription: data.shortDescription,
@@ -101,23 +95,19 @@ export default function AddIdeaPage() {
         createdAt: new Date().toISOString(),
       };
 
-      // =========================
       // ADD IDEA
-      // =========================
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/ideas`,
-        {
-          method: "POST",
-          headers: {
-            "content-type": "application/json",
 
-            // backend support header token
-            authorization: `Bearer ${jwtData.token}`,
-          },
-          credentials: "include",
-          body: JSON.stringify(ideaPayload),
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/ideas`, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+
+          // backend support header token
+          authorization: `Bearer ${jwtData.token}`,
         },
-      );
+        credentials: "include",
+        body: JSON.stringify(ideaPayload),
+      });
 
       const result = await res.json();
 
@@ -212,10 +202,7 @@ export default function AddIdeaPage() {
           </p>
         </div>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-5"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
           {/* TITLE */}
           <div>
             <label className="text-sm font-medium flex items-center gap-2">
@@ -241,9 +228,7 @@ export default function AddIdeaPage() {
 
           {/* CATEGORY */}
           <div>
-            <label className="text-sm font-medium">
-              Category
-            </label>
+            <label className="text-sm font-medium">Category</label>
 
             <select
               {...register("category", {
@@ -292,11 +277,7 @@ export default function AddIdeaPage() {
                   />
                 ) : (
                   <input
-                    type={
-                      field.name === "estimatedBudget"
-                        ? "number"
-                        : "text"
-                    }
+                    type={field.name === "estimatedBudget" ? "number" : "text"}
                     placeholder={field.label}
                     {...register(field.name, {
                       required:
@@ -329,7 +310,7 @@ export default function AddIdeaPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:scale-[1.01] active:scale-95 transition cursor-pointer disabled:opacity-50"
+            className="w-full py-3 rounded-xl bg-linear-to-r from-cyan-500 to-purple-600 text-white font-semibold hover:scale-[1.01] active:scale-95 transition cursor-pointer disabled:opacity-50"
           >
             {loading ? "Submitting..." : "Submit Idea"}
           </button>

@@ -123,17 +123,14 @@ export default function IdeaDetailsPage() {
     };
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/comments`,
-        {
-          method: "POST",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(commentPayload),
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/comments`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify(commentPayload),
+      });
 
       if (!res.ok) {
         throw new Error("Failed");
@@ -230,7 +227,6 @@ export default function IdeaDetailsPage() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-8">
-
         {/* back button */}
         <button
           onClick={() => router.push("/ideas")}
@@ -244,10 +240,8 @@ export default function IdeaDetailsPage() {
 
         {/* idea card */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-sm space-y-8">
-
           {/* top */}
           <div className="flex flex-col sm:flex-row justify-between gap-6">
-
             <div className="space-y-3 flex-1">
               <span className="inline-block bg-cyan-500/10 text-cyan-500 text-[11px] font-black uppercase px-3 py-1 rounded-full border border-cyan-500/20">
                 {idea.category}
@@ -279,9 +273,7 @@ export default function IdeaDetailsPage() {
                   Creator
                 </p>
 
-                <p className="text-sm font-bold">
-                  {idea.userName}
-                </p>
+                <p className="text-sm font-bold">{idea.userName}</p>
               </div>
             </div>
           </div>
@@ -302,28 +294,24 @@ export default function IdeaDetailsPage() {
 
           {/* detailed */}
           <div className="space-y-8">
-
             <div>
               <h3 className="text-xs font-black uppercase text-cyan-500 mb-2">
                 Detailed Description
               </h3>
 
               <p className="text-sm sm:text-base leading-relaxed text-slate-600 dark:text-slate-300">
-                {idea.detailedDescription}
+                {idea.description}
               </p>
             </div>
 
             {/* info */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-
               <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
                 <h3 className="text-[11px] uppercase font-bold text-slate-400 mb-1">
                   Target Audience
                 </h3>
 
-                <p className="font-bold">
-                  {idea.targetAudience}
-                </p>
+                <p className="font-bold">{idea.targetAudience}</p>
               </div>
 
               <div className="bg-slate-50 dark:bg-slate-950 p-5 rounded-2xl border border-slate-200 dark:border-slate-800">
@@ -379,10 +367,8 @@ export default function IdeaDetailsPage() {
 
         {/* comments */}
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 sm:p-10 shadow-sm space-y-6">
-
           <h2 className="text-xl font-bold flex items-center gap-2">
             Community Comments
-
             <span className="text-sm bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded-full">
               {comments.length}
             </span>
@@ -390,7 +376,6 @@ export default function IdeaDetailsPage() {
 
           {/* add form */}
           <form onSubmit={handleAddComment} className="space-y-3">
-
             <textarea
               rows={3}
               value={newComment}
@@ -412,7 +397,6 @@ export default function IdeaDetailsPage() {
 
           {/* comments list */}
           <div className="space-y-4 pt-6 border-t border-slate-100 dark:border-slate-800">
-
             {comments.length === 0 ? (
               <p className="text-center py-10 text-slate-400 text-sm">
                 No comments yet.
@@ -423,7 +407,6 @@ export default function IdeaDetailsPage() {
                   key={comment._id}
                   className="p-5 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-200 dark:border-slate-800 flex gap-4"
                 >
-
                   <Image
                     src={
                       comment.userPhoto ||
@@ -436,13 +419,9 @@ export default function IdeaDetailsPage() {
                   />
 
                   <div className="flex-1 space-y-2">
-
                     <div className="flex justify-between gap-4">
-
                       <div>
-                        <p className="text-xs font-bold">
-                          {comment.userName}
-                        </p>
+                        <p className="text-xs font-bold">{comment.userName}</p>
 
                         <p className="text-[10px] text-slate-400">
                           {comment.createdAt
@@ -454,13 +433,10 @@ export default function IdeaDetailsPage() {
                       {currentUser.email?.toLowerCase() ===
                         comment.userEmail?.toLowerCase() && (
                         <div className="flex gap-3 text-[10px] font-black uppercase">
-
                           {editingCommentId === comment._id ? (
                             <>
                               <button
-                                onClick={() =>
-                                  handleEditComment(comment._id)
-                                }
+                                onClick={() => handleEditComment(comment._id)}
                                 className="text-emerald-500 hover:text-emerald-600 cursor-pointer"
                               >
                                 Save
@@ -489,9 +465,7 @@ export default function IdeaDetailsPage() {
                               </button>
 
                               <button
-                                onClick={() =>
-                                  handleDeleteComment(comment._id)
-                                }
+                                onClick={() => handleDeleteComment(comment._id)}
                                 className="text-red-500 hover:text-red-600 cursor-pointer"
                               >
                                 Delete

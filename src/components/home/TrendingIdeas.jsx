@@ -10,7 +10,7 @@ export default function TrendingIdeas() {
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // ================= FETCH TRENDING IDEAS =================
+  // TRENDING IDEAS =================
   useEffect(() => {
     const fetchTrendingIdeas = async () => {
       try {
