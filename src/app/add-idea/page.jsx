@@ -246,7 +246,7 @@ import {
   FiAlertCircle,
   FiCpu,
 } from "react-icons/fi";
-import { resolve } from "styled-jsx/macro";
+
 
 export default function AddIdeaPage() {
   const {
@@ -268,7 +268,7 @@ export default function AddIdeaPage() {
 
     setLoading(true);
 
-    // ১. প্রথম ধাপে ব্যাকএন্ডে JWT টোকেন সিঙ্ক করা এবং কুকি সেট নিশ্চিত করা
+ 
     try {
       const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
         method: "POST",
@@ -293,16 +293,16 @@ export default function AddIdeaPage() {
       console.error("JWT sync issue:", jwtErr);
       toast.error("Authentication sync failed. Please try again.");
       setLoading(false);
-      return; // টোকেন সিঙ্ক না হলে এখানেই রিকোয়েস্ট থামিয়ে দেওয়া ভালো
+      return; 
     }
 
-    // ব্যাকএন্ডের রিকোয়ারমেন্ট অনুযায়ী পে-লোড রেডি করা
+  
     const ideaPayload = {
       ...data,
       tags: data.tags?.split(",").map((t) => t.trim()),
       estimatedBudget: Number(data.estimatedBudget),
       userName: session.user.name,
-      userEmail: session.user.email, // ব্যাকএন্ড এই ইমেইলটি ভেরিফাই করছে
+      userEmail: session.user.email, 
       userPhoto: session.user.image,
       createdAt: new Date().toISOString(),
     };
