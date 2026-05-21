@@ -228,9 +228,13 @@
 
 
 
+
+
+
+
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { authClient } from "@/lib/auth-client";
@@ -259,46 +263,55 @@ export default function AddIdeaPage() {
   const { data: session } = authClient.useSession();
   const router = useRouter();
 
-  // ১. পেজ লোড হওয়ার সাথে সাথে ব্যাকগ্রাউন্ডে কুকি সিঙ্ক (toLowerCase সহ)
-  useEffect(() => {
-    if (!session?.user?.email) return;
-
-    const syncToken = async () => {
-      try {
-        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            email: session.user.email.toLowerCase(), // ফিক্স: ছোট হাতের অক্ষরে সিঙ্ক
-            name: session.user.name,
-          }),
-        });
-      } catch (err) {
-        console.error("Background JWT sync issue:", err);
-      }
-    };
-
-    syncToken();
-  }, [session?.user?.email, session?.user?.name]);
-
   const onSubmit = async (data) => {
-    if (!session?.user) {
+    if (!session?.user?.email) {
       toast.error("You must be logged in");
       return;
     }
 
     setLoading(true);
 
-    // ব্যাকএন্ডের রিকোয়ারমেন্ট অনুযায়ী পে-লোড রেডি করা
+    // ১. প্রথমে এই সেশনের ইমেইল দিয়ে ফিক্সড টোকেন জেনারেট করা
+    try {
+      const jwtRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/jwt`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          email: session.user.email,
+          name: session.user.name,
+        }),
+      });
+
+      if (!jwtRes.ok) {
+        throw new Error("Failed to synchronize authentication token");
+      }
+    } catch (jwtErr) {
+      console.error("JWT sync issue:", jwtErr);
+      toast.error("Authentication sync failed.");
+      setLoading(false);
+      return;
+    }
+
+    // 🔥 [SUPER FIX] এখানে ইমেইলটি সরাসরি সেশন থেকে ফিক্সড করে দেওয়া হলো
+    // ডাটা ফর্মের ভেতর থেকে আসা কোনো ভুল বা ওলটপালট ইমেইলকে এখানে আর পাত্তা দেওয়া হচ্ছে না
     const ideaPayload = {
-      ...data,
-      tags: data.tags?.split(",").map((t) => t.trim()),
+      title: data.title,
+      category: data.category,
+      shortDescription: data.shortDescription,
+      description: data.description,
+      imageURL: data.imageURL,
       estimatedBudget: Number(data.estimatedBudget),
+      targetAudience: data.targetAudience,
+      problemStatement: data.problemStatement,
+      proposedSolution: data.proposedSolution,
+      tags: data.tags?.split(",").map((t) => t.trim()) || [],
+      
+      // এই ৩টি ফিল্ড ব্যাকএন্ডের টোকেনের ডাটার সাথে হুবহু এক হতে হবে
       userName: session.user.name,
-      userEmail: session.user.email.toLowerCase(), // ফিক্স: ব্যাকএন্ড কন্ডিশন ম্যাচ করার জন্য নিশ্চিতভাবে ছোট হাতের করা হলো
+      userEmail: session.user.email, // ১০০% গ্যারান্টিড ম্যাচ উইথ টোকেন
       userPhoto: session.user.image,
       createdAt: new Date().toISOString(),
     };
@@ -316,7 +329,7 @@ export default function AddIdeaPage() {
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || "Failed to submit idea");
+        throw new Error(errData.message || "Forbidden or Failed");
       }
 
       toast.success("Idea submitted successfully 🚀");
@@ -461,9 +474,3 @@ export default function AddIdeaPage() {
     </div>
   );
 }
-
-
-
-
-
-
