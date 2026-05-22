@@ -1,21 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 export default function TokenSyncer() {
   const { data: session } = authClient.useSession();
-  const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    const syncGoogleToken = async () => {
-      if (
-        session?.user &&
-        !localStorage.getItem("idea_vault_token")
-      ) {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+
+    const syncToken = async () => {
+      const existingToken = localStorage.getItem("idea_vault_token");
+
+      if (session?.user && !existingToken) {
         try {
-          const jwtRes = await fetch(
+          const res = await fetch(
             `${process.env.NEXT_PUBLIC_API_URL}/jwt`,
             {
               method: "POST",
@@ -25,32 +29,25 @@ export default function TokenSyncer() {
               credentials: "include",
               body: JSON.stringify({
                 email: session.user.email,
-                name: session.user.name,
-                image: session.user.image,
               }),
             }
           );
 
-          const jwtData = await jwtRes.json();
+          const data = await res.json();
 
-          if (jwtData?.token) {
-            localStorage.setItem(
-              "idea_vault_token",
-              jwtData.token
-            );
+          if (data?.token) {
+            localStorage.setItem("idea_vault_token", data.token);
 
             console.log("Google token synced!");
-
-            router.refresh();
           }
-        } catch (error) {
-          console.error("Google token sync error:", error);
+        } catch (err) {
+          console.error("Token sync failed:", err);
         }
       }
     };
 
-    syncGoogleToken();
-  }, [session, router]);
+    syncToken();
+  }, [session, mounted]);
 
   return null;
 }
