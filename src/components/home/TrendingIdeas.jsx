@@ -10,19 +10,16 @@ export default function TrendingIdeas() {
   const [ideas, setIdeas] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // TRENDING IDEAS =================
+  // t.idea
   useEffect(() => {
     const fetchTrendingIdeas = async () => {
       try {
         setLoading(true);
 
-        const res = await fetch(
-          `${API_URL}/ideas?limit=6`,
-          {
-            method: "GET",
-            cache: "no-store",
-          }
-        );
+        const res = await fetch(`${API_URL}/ideas?limit=6`, {
+          method: "GET",
+          cache: "no-store",
+        });
 
         if (!res.ok) {
           throw new Error("Failed to fetch ideas");
@@ -44,7 +41,6 @@ export default function TrendingIdeas() {
   return (
     <section className="w-full px-4 sm:px-6 lg:px-8 py-16 bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
-        {/* ================= HEADER ================= */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
           <div>
             <span className="text-[10px] font-black uppercase text-cyan-500 bg-cyan-500/10 px-2.5 py-1 rounded-md border border-cyan-500/20">
@@ -69,20 +65,17 @@ export default function TrendingIdeas() {
           </Link>
         </div>
 
-        {/* ================= LOADING ================= */}
         {loading ? (
           <div className="flex justify-center items-center h-64">
             <div className="w-10 h-10 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin"></div>
           </div>
         ) : ideas.length === 0 ? (
-          // ================= EMPTY =================
           <div className="text-center py-16 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800">
             <p className="text-slate-400 text-sm font-medium">
               No ideas found yet.
             </p>
           </div>
         ) : (
-          // ================= IDEAS GRID =================
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ideas.map((idea) => (
               <div
@@ -119,14 +112,13 @@ export default function TrendingIdeas() {
                     </p>
                   </div>
 
-                  {/* META */}
                   <div className="mt-5 pt-4 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center">
                     <div>
                       <p className="text-[10px] uppercase font-bold text-slate-400">
                         Created By
                       </p>
 
-                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">
+                      <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate max-w-30">
                         {idea.userName || "Anonymous"}
                       </p>
                     </div>

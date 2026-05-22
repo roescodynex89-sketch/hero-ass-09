@@ -34,7 +34,7 @@ export default function NotFound() {
           </p>
         </div>
 
-        {/* 🛠️ ACTION BUTTONS */}
+        {/*action */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
           {/* Back Button */}
           <button
